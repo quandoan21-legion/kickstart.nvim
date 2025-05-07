@@ -22,4 +22,14 @@ vim.keymap.set('n', 'J', ':m .+1<CR>==', { noremap = true, silent = true })
 -- Move current line up with K
 vim.keymap.set('n', 'K', ':m .-2<CR>==', { noremap = true, silent = true })
 
+vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUIToggle<CR>', { noremap = true, silent = true })
+
+-- Navigate to the next database view with <Leader>dn
+vim.api.nvim_set_keymap('n', '<Leader>dn', ':DBUINext<CR>', { noremap = true, silent = true })
+
+-- Navigate to the previous database view with <Leader>dp
+vim.api.nvim_set_keymap('n', '<Leader>dp', ':DBUIPrev<CR>', { noremap = true, silent = true })
+
+-- Open the query editor for the current database with <Leader>dq
+vim.api.nvim_set_keymap('n', '<Leader>dq', ':DBUIQuery<CR>', { noremap = true, silent = true })
 return {}

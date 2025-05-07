@@ -4,6 +4,21 @@
 -- See the kickstart.nvim README for more information
 return {
   {
+    'tpope/vim-dadbod',
+    config = function()
+      -- Optional configuration for vim-dadbod, if needed
+    end,
+  },
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    config = function()
+      -- Optional configuration for vim-dadbod-ui, if needed
+    end,
+  },
+  {
+    'Pocco81/auto-save.nvim',
+  },
+  {
     'sphamba/smear-cursor.nvim',
     event = 'VeryLazy',
     config = function()
@@ -29,9 +44,11 @@ return {
           height = 30,
           winblend = 0,
         },
-        open_mapping = [[<C-\>]],
         start_in_insert = true,
       }
+
+      -- Change the toggle key to work only in normal mode
+      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
     end,
   },
   {
@@ -43,13 +60,6 @@ return {
         transparent = true,
       }
       vim.cmd 'colorscheme tokyonight'
-    end,
-  },
-  {
-    'akinsho/toggleterm.nvim',
-    tag = '*',
-    config = function()
-      require('toggleterm').setup()
     end,
   },
   {
