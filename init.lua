@@ -177,7 +177,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -250,14 +250,14 @@ require('lazy').setup({
 
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
-  --    {
-  --        'lewis6991/gitsigns.nvim',
-  --        config = function()
-  --            require('gitsigns').setup({
-  --                -- Your gitsigns configuration here
-  --            })
-  --        end,
-  --    }
+  -- {
+  --     'lewis6991/gitsigns.nvim',
+  --     config = function()
+  --         require('gitsigns').setup({
+  --             -- Your gitsigns configuration here
+  --         })
+  --     end,
+  -- }
   --
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`.
@@ -485,6 +485,9 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
+  {
+    'nvim-neotest/nvim-nio',
+  },
 
   -- LSP Plugins
   {
@@ -497,6 +500,94 @@ require('lazy').setup({
         -- Load luvit types when the `vim.uv` word is found
         { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
       },
+    },
+  },
+  {
+    'tpope/vim-dadbod',
+    config = function()
+      -- Optional configuration for vim-dadbod, if needed
+    end,
+  },
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    config = function()
+      -- Optional configuration for vim-dadbod-ui, if needed
+    end,
+  },
+  {
+    'Pocco81/auto-save.nvim',
+  },
+  {
+    'sphamba/smear-cursor.nvim',
+    event = 'VeryLazy',
+    config = function()
+      require('smear_cursor').setup {
+        cursor_color = '#ff8800',
+        stiffness = 1,
+        trailing_stiffness = 0.35,
+        trailing_exponent = 15,
+        hide_target_hack = false,
+        gamma = 1,
+      }
+    end,
+  },
+  {
+    version = '*',
+    'akinsho/toggleterm.nvim',
+    config = function()
+      require('toggleterm').setup {
+        direction = 'float',
+        float_opts = {
+          border = 'curved',
+          width = 125,
+          height = 30,
+          winblend = 0,
+        },
+        start_in_insert = true,
+      }
+
+      -- Change the toggle key to work only in normal mode
+      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
+    end,
+  },
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'rcarriga/nvim-notify',
+    },
+    config = function()
+      require('noice').setup {
+        lsp = {
+          progress = {
+            enabled = true,
+          },
+          override = {
+            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+            ['vim.lsp.util.stylize_markdown'] = true,
+            ['cmp.entry.get_documentation'] = true,
+          },
+        },
+        presets = {
+          bottom_search = true, -- replace bottom cmdline for search
+          command_palette = true, -- position the command line and popup together
+          long_message_to_split = true, -- long messages in split
+          inc_rename = false,
+          lsp_doc_border = true,
+        },
+      }
+
+      -- Optional: set noice as the default notification system
+      vim.notify = require 'notify'
+    end,
+  },
+
+  {
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      'rcarriga/nvim-dap-ui',
+      'mfussenegger/nvim-dap-python',
     },
   },
   {
@@ -720,7 +811,8 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
+        lemminx = {},
         --
 
         lua_ls = {
@@ -840,12 +932,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
         opts = {},
       },
@@ -917,16 +1009,37 @@ require('lazy').setup({
     },
   },
 
+  {
+    'kdheepak/lazygit.nvim',
+    lazy = true,
+    cmd = {
+      'LazyGit',
+      'LazyGitConfig',
+      'LazyGitCurrentFile',
+      'LazyGitFilter',
+      'LazyGitFilterCurrentFile',
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
     --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
+    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
+        transparent = true,
         styles = {
           comments = { italic = false }, -- Disable italics in comments
         },
@@ -1056,6 +1169,51 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+-- must be after `require("dap-python").setup(debugpy_path)`
+local dap = require 'dap'
+local dap_python = require 'dap-python'
+
+-- ─── General DAP mappings ────────────────────────────────────────────────────
+vim.keymap.set('n', '<F5>', dap.continue, { desc = '▶ Continue' })
+vim.keymap.set('n', '<F10>', dap.step_over, { desc = '⤼ Step Over' })
+vim.keymap.set('n', '<F11>', dap.step_into, { desc = '⤽ Step Into' })
+vim.keymap.set('n', '<F12>', dap.step_out, { desc = '⤾ Step Out' })
+
+vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint, { desc = ' Toggle Breakpoint' })
+vim.keymap.set('n', '<leader>dB', function() -- conditional
+  dap.set_breakpoint(nil, nil, vim.fn.input 'Breakpoint condition: ')
+end, { desc = ' Set Conditional Breakpoint' })
+
+vim.keymap.set('n', '<leader>dr', dap.repl.open, { desc = ' Open DAP REPL' })
+vim.keymap.set('n', '<leader>dl', dap.run_last, { desc = ' Run Last Session' })
+
+-- Move current line down with J
+vim.keymap.set('n', 'J', ':m .+1<CR>==', { noremap = true, silent = true })
+
+-- Move current line up with K
+vim.keymap.set('n', 'K', ':m .-2<CR>==', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<Leader>db', ':DBUIToggle<CR>', { noremap = true, silent = true })
+
+-- Navigate to the next database view with <Leader>dn
+vim.api.nvim_set_keymap('n', '<Leader>dn', ':DBUINext<CR>', { noremap = true, silent = true })
+
+-- Navigate to the previous database view with <Leader>dp
+vim.api.nvim_set_keymap('n', '<Leader>dp', ':DBUIPrev<CR>', { noremap = true, silent = true })
+
+-- Open the query editor for the current database with <Leader>dq
+vim.api.nvim_set_keymap('n', '<Leader>dq', ':DBUIQuery<CR>', { noremap = true, silent = true })
+-- DAP UI bindings
+vim.keymap.set('n', '<Leader>du', function()
+  require('dapui').toggle()
+end, { desc = 'DAP UI: Toggle' })
+-- Normal mode keybinding
+vim.keymap.set('n', 'T', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' })
+
+-- Terminal mode keybinding
+vim.keymap.set('t', 'T', [[<C-\><C-n><cmd>ToggleTerm<CR>]], { desc = 'Toggle Terminal' })
+vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 local toggleterm = require 'toggleterm'
 
 toggleterm.setup {

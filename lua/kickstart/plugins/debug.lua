@@ -80,7 +80,77 @@ return {
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
+    dap.configurations.python = dap.configurations.python or {}
 
+    -- Odoo 18 (Tayoong)
+    table.insert(dap.configurations.python, {
+      name = 'Odoo Tayoong',
+      type = 'python',
+      request = 'launch',
+      program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
+      args = {
+        '-c',
+        '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
+        '-u',
+        'a1_einvoice_to_gov',
+        '--xmlrpc-port',
+        '8066',
+      },
+      pythonPath = function()
+        return '/usr/local/bin/python3.12'
+      end,
+      cwd = vim.fn.getcwd(),
+      env = { PYTHONUNBUFFERED = '1' },
+      console = 'integratedTerminal',
+    })
+
+    -- Odoo 13
+    table.insert(dap.configurations.python, {
+      name = 'Odoo 13',
+      type = 'python',
+      request = 'launch',
+      program = '/Users/quandoan/Desktop/odoo-13.0/odoo-bin',
+      args = {
+        '-c',
+        '/Users/quandoan/Desktop/odoo-13.0/debian/odoo.conf',
+        '-u',
+        'a1_einvoice_to_gov',
+        '--xmlrpc-port',
+        '8066',
+      },
+      pythonPath = function()
+        return '/usr/local/bin/python3.7'
+      end,
+      cwd = vim.fn.getcwd(),
+      env = { PYTHONUNBUFFERED = '1' },
+      console = 'integratedTerminal',
+    })
+    vim.cmd [[
+      highlight DapBreakpoint guifg=#FF8800 guibg=#1E1E2E
+      highlight DapBreakpointCondition guifg=#F1FA8C guibg=#1E1E2E
+      highlight DapStopped guifg=#50FA7B guibg=#1E1E2E
+    ]]
+
+    vim.fn.sign_define('DapBreakpoint', {
+      text = '●',
+      texthl = 'DapBreakpoint',
+      linehl = '',
+      numhl = '',
+    })
+
+    vim.fn.sign_define('DapBreakpointCondition', {
+      text = '◆',
+      texthl = 'DapBreakpointCondition',
+      linehl = '',
+      numhl = '',
+    })
+
+    vim.fn.sign_define('DapStopped', {
+      text = '▶',
+      texthl = 'DapStopped',
+      linehl = '',
+      numhl = '',
+    })
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
@@ -95,6 +165,7 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'python',
       },
     }
 
@@ -116,6 +187,23 @@ return {
           run_last = '▶▶',
           terminate = '⏹',
           disconnect = '⏏',
+        },
+      },
+      layouts = {
+        {
+          elements = {
+            { id = 'repl', size = 0.5 },
+            { id = 'console', size = 0.5 },
+          },
+          size = 0.15,
+          position = 'left',
+        },
+        {
+          elements = {
+            { id = 'scopes', size = 1.0 },
+          },
+          size = 0.85,
+          position = 'bottom',
         },
       },
     }
