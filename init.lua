@@ -276,6 +276,13 @@ require('lazy').setup({
     },
   },
   {
+    'mbbill/undotree',
+    config = function()
+      -- Optional: map a key to open undotree
+      vim.api.nvim_set_keymap('n', '<Leader>u', ':UndotreeToggle<CR>', { noremap = true, silent = true })
+    end,
+  },
+  {
     'rcarriga/nvim-dap-ui',
     requires = { 'mfussenegger/nvim-dap' },
     config = function()
@@ -884,7 +891,7 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      notify_on_error = true,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
@@ -902,10 +909,10 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black', stop_after_first = true },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -1230,3 +1237,10 @@ toggleterm.setup {
     end,
   },
 }
+-- Add this to your init.lua or a separate config file
+
+-- Highlight for scopes
+vim.cmd [[
+  highlight DapUIScopesBorder guifg=#FF6347 guibg=#282828
+  highlight DapUIScopesText guifg=#32CD32 guibg=#1c1c1c
+]]

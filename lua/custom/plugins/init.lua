@@ -88,8 +88,6 @@ return {
           '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
           '-u',
           'a1_einvoice_to_gov',
-          '--xmlrpc-port',
-          '8066',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
@@ -109,8 +107,6 @@ return {
           '/Users/quandoan/Desktop/odoo-13.0/debian/odoo.conf',
           '-u',
           'a1_einvoice_to_gov',
-          '--xmlrpc-port',
-          '8066',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.7'
