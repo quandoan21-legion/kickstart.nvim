@@ -109,6 +109,8 @@ vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
+vim.opt.showcmd = true
+vim.opt.showcmdloc = 'statusline'
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
@@ -1061,7 +1063,15 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
+  {
+    'f-person/git-blame.nvim',
+    config = function()
+      require('gitblame').setup {
+        enabled = true,
+      }
+    end,
+    event = 'VeryLazy',
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1193,7 +1203,23 @@ vim.keymap.set('n', '<leader>dB', function() -- conditional
 end, { desc = ' Set Conditional Breakpoint' })
 
 vim.keymap.set('n', '<leader>dr', dap.repl.open, { desc = ' Open DAP REPL' })
-vim.keymap.set('n', '<leader>dl', dap.run_last, { desc = ' Run Last Session' })
+-- vim.keymap.set('n', '<leader>dl', dap.run_last, { desc = ' Run Last Session' })
+vim.keymap.set('n', '<leader>dl', function()
+  local dapui = require 'dapui'
+  local dap = require 'dap'
+
+  -- Temporarily remove UI opening listener
+  local open_ui = dap.listeners.after.event_initialized['dapui_config']
+  dap.listeners.after.event_initialized['dapui_config'] = nil
+
+  -- Run last session
+  dap.run_last()
+
+  -- Restore the UI listener after a short delay
+  vim.defer_fn(function()
+    dap.listeners.after.event_initialized['dapui_config'] = open_ui
+  end, 100)
+end, { desc = ' Run Last Session (No UI)' })
 
 -- Move current line down with J
 vim.keymap.set('n', 'J', ':m .+1<CR>==', { noremap = true, silent = true })
