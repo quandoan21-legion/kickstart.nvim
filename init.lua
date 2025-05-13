@@ -801,7 +801,7 @@ require('lazy').setup({
           settings = {
             python = {
               analysis = {
-                typeCheckingMode = 'off', -- ✅ disable type errors
+                typeCheckingMode = 'basic', -- ✅ disable type errors
                 diagnosticMode = 'openFilesOnly', -- ✅ optional: only open buffers, not full project
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
@@ -820,7 +820,6 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
         lemminx = {},
         --
 
@@ -1071,6 +1070,27 @@ require('lazy').setup({
       }
     end,
     event = 'VeryLazy',
+  },
+  {
+    'akinsho/bufferline.nvim',
+    version = '*',
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require('bufferline').setup {}
+    end,
+  },
+  {
+    'lewis6991/impatient.nvim',
+    config = function()
+      require 'impatient'
+    end,
+    priority = 1000,
+  },
+  {
+    'theHamsta/nvim-dap-virtual-text',
+    config = function()
+      require('nvim-dap-virtual-text').setup()
+    end,
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
