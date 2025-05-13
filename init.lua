@@ -1092,6 +1092,33 @@ require('lazy').setup({
       require('nvim-dap-virtual-text').setup()
     end,
   },
+
+  {
+    'danymat/neogen',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
+    config = function()
+      require('neogen').setup {
+        enabled = true,
+        languages = {
+          python = { template = { annotation_convention = 'numpydoc' } }, -- hoặc "numpydoc"
+          lua = { template = { annotation_convention = 'lua_doc' } },
+        },
+      }
+    end,
+    keys = {
+      {
+        '<leader>cc',
+        function()
+          require('neogen').generate()
+        end,
+        desc = ' Generate Comment (docstring)',
+      },
+    },
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    dependencies = { 'nvim-treesitter' },
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1290,3 +1317,19 @@ vim.cmd [[
   highlight DapUIScopesBorder guifg=#FF6347 guibg=#282828
   highlight DapUIScopesText guifg=#32CD32 guibg=#1c1c1c
 ]]
+
+require('nvim-treesitter.configs').setup {
+  -- existing config ...
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ['af'] = '@function.outer',
+        ['if'] = '@function.inner',
+        ['ac'] = '@class.outer',
+        ['ic'] = '@class.inner',
+      },
+    },
+  },
+}
