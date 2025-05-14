@@ -87,7 +87,7 @@ return {
           '-c',
           '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
           '-u',
-          'a1_einvoice_to_gov',
+          'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
