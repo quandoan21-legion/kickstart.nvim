@@ -1289,10 +1289,10 @@ vim.keymap.set('n', '<Leader>du', function()
   require('dapui').toggle()
 end, { desc = 'DAP UI: Toggle' })
 -- Normal mode keybinding
-vim.keymap.set('n', 'T', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' })
+vim.keymap.set('n', '<C-T>', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' })
 
 -- Terminal mode keybinding
-vim.keymap.set('t', 'T', [[<C-\><C-n><cmd>ToggleTerm<CR>]], { desc = 'Toggle Terminal' })
+vim.keymap.set('t', '<C-T>', [[<C-\><C-n><cmd>ToggleTerm<CR>]], { desc = 'Toggle Terminal' })
 vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 local toggleterm = require 'toggleterm'
 
