@@ -1379,13 +1379,6 @@ toggleterm.setup {
     end,
   },
 }
--- Add this to your init.lua or a separate config file
-
--- Highlight for scopes
-vim.cmd [[
-  highlight DapUIScopesBorder guifg=#FF6347 guibg=#282828
-  highlight DapUIScopesText guifg=#32CD32 guibg=#1c1c1c
-]]
 
 require('nvim-treesitter.configs').setup {
   -- existing config ...
@@ -1420,3 +1413,45 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 -- after all your plugin setup:
 require 'snippets'
+vim.cmd [[
+  highlight DapUIScopesBorder guifg=#FF6347 guibg=#282828
+  highlight DapUIScopesText guifg=#32CD32 guibg=#1c1c1c
+]]
+
+local dap = require 'dap'
+
+-- Remove all breakpoints
+function _G.clear_all_breakpoints()
+  dap.clear_breakpoints()
+end
+
+-- Disable all breakpoints (without deleting them)
+function _G.disable_all_breakpoints()
+  for bufnr, bps in pairs(dap.session() and dap.session().breakpoints or {}) do
+    for _, bp in ipairs(bps) do
+      dap.toggle_breakpoint(
+        bp.breakpoint.file,
+        bp.breakpoint.line,
+        { condition = bp.breakpoint.condition, logMessage = bp.breakpoint.logMessage, enabled = false }
+      )
+    end
+  end
+end
+
+-- Re-enable all breakpoints
+function _G.enable_all_breakpoints()
+  for bufnr, bps in pairs(dap.session() and dap.session().breakpoints or {}) do
+    for _, bp in ipairs(bps) do
+      dap.toggle_breakpoint(
+        bp.breakpoint.file,
+        bp.breakpoint.line,
+        { condition = bp.breakpoint.condition, logMessage = bp.breakpoint.logMessage, enabled = true }
+      )
+    end
+  end
+end
+
+-- Example keymaps
+vim.keymap.set('n', '<leader>cb', _G.clear_all_breakpoints, { desc = 'DAP: Clear all breakpoints' })
+vim.keymap.set('n', '<leader>dB', _G.disable_all_breakpoints, { desc = 'DAP: Disable all breakpoints' })
+vim.keymap.set('n', '<leader>dE', _G.enable_all_breakpoints, { desc = 'DAP: Enable all breakpoints' })

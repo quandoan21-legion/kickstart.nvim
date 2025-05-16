@@ -79,8 +79,8 @@ return {
       dap.configurations.python = dap.configurations.python or {}
       -- Ta-yoong project debug config
       table.insert(dap.configurations.python, {
-        name = 'Odoo Tayoong',
         type = 'python',
+        name = 'Odoo Tayoong',
         request = 'launch',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
         args = {
@@ -105,6 +105,8 @@ return {
         args = {
           '-c',
           '/Users/quandoan/Desktop/odoo-13.0/debian/odoo.conf',
+          '--limit-memory-hard',
+          '0',
           '-u',
           'a1_einvoice_to_gov',
         },
