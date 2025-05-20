@@ -554,9 +554,6 @@ require('lazy').setup({
         },
         start_in_insert = true,
       }
-
-      -- Change the toggle key to work only in normal mode
-      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
     end,
   },
   {
@@ -1364,21 +1361,6 @@ vim.keymap.set('n', '<C-T>', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' }
 vim.keymap.set('t', '<C-T>', [[<C-\><C-n><cmd>ToggleTerm<CR>]], { desc = 'Toggle Terminal' })
 vim.keymap.set('n', '<leader>x', '<cmd>bd<CR>', { desc = 'Close current buffer' })
 local toggleterm = require 'toggleterm'
-
-toggleterm.setup {
-  open_mapping = 'T', -- press T in normal or terminal to toggle
-  direction = 'float', -- use a floating window
-  float_opts = {
-    border = 'single', -- or "double", "curved", etc.
-    -- dynamic sizing: 85% of the current editor dimensions
-    width = function()
-      return math.floor(vim.o.columns * 0.85)
-    end,
-    height = function()
-      return math.floor(vim.o.lines * 0.85)
-    end,
-  },
-}
 
 require('nvim-treesitter.configs').setup {
   -- existing config ...

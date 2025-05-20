@@ -33,25 +33,6 @@ return {
     end,
   },
   {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    config = function()
-      require('toggleterm').setup {
-        direction = 'float',
-        float_opts = {
-          border = 'curved',
-          width = 100,
-          height = 30,
-          winblend = 0,
-        },
-        start_in_insert = true,
-      }
-
-      -- Change the toggle key to work only in normal mode
-      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
-    end,
-  },
-  {
     'folke/tokyonight.nvim',
     lazy = false,
     priority = 1000,
@@ -88,6 +69,10 @@ return {
           '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
           '-u',
           'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice',
+          '-d',
+          'tayoong',
+          -- '-i',
+          -- 'base',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
@@ -111,7 +96,7 @@ return {
           'a1_einvoice_to_gov',
         },
         pythonPath = function()
-          return '/usr/local/bin/python3.7'
+          return '/usr/local/bin/pvenv3.7'
         end,
         cwd = vim.fn.getcwd(),
         env = { PYTHONUNBUFFERED = '1' },
@@ -149,24 +134,5 @@ return {
         },
       }
     end,
-  },
-  {
-    -- Ensure toggleterm is loaded
-    'akinsho/toggleterm.nvim',
-    keys = {
-      {
-        '<leader>lg',
-        function()
-          local Terminal = require('toggleterm.terminal').Terminal
-          local lazygit = Terminal:new {
-            cmd = 'lazygit',
-            direction = 'float',
-            hidden = true,
-          }
-          lazygit:toggle()
-        end,
-        desc = 'Lazygit (float)',
-      },
-    },
   },
 }
