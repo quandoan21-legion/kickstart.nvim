@@ -1,5 +1,4 @@
 --[[
-
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
@@ -1437,3 +1436,12 @@ end
 vim.keymap.set('n', '<leader>cb', _G.clear_all_breakpoints, { desc = 'DAP: Clear all breakpoints' })
 vim.keymap.set('n', '<leader>dB', _G.disable_all_breakpoints, { desc = 'DAP: Disable all breakpoints' })
 vim.keymap.set('n', '<leader>dE', _G.enable_all_breakpoints, { desc = 'DAP: Enable all breakpoints' })
+require('notify').setup {
+  stages = 'fade_in_slide_out', -- Smooth entrance/exit
+  timeout = 1500, -- Show for 1.5 seconds instead of 5
+  top_down = false, -- Newest notifications on bottom
+  render = 'minimal', -- Simplified rendering
+  background_colour = '#000000', -- Darker background (optional)
+  max_width = 50, -- Width of notifications
+  max_height = 4, -- Limit max height
+}

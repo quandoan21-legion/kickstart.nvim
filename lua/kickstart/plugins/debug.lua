@@ -192,17 +192,17 @@ return {
       layouts = {
         {
           elements = {
-            { id = 'repl', size = 0.5 },
-            { id = 'console', size = 0.5 },
+            { id = 'console', size = 1.5 },
           },
           size = 0.15,
           position = 'left',
         },
         {
           elements = {
-            { id = 'scopes', size = 1.0 },
+            { id = 'repl', size = 0.5 },
+            { id = 'scopes', size = 0.5 },
           },
-          size = 0.85,
+          size = 0.5,
           position = 'bottom',
         },
       },
