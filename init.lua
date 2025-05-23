@@ -1137,11 +1137,77 @@ require('lazy').setup({
     end,
   },
   {
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    opts = {},
+    keys = {
+      {
+        's',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').jump()
+        end,
+        desc = 'Flash Jump',
+      },
+      {
+        'S',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').treesitter()
+        end,
+        desc = 'Flash Treesitter',
+      },
+      {
+        'r',
+        mode = 'o',
+        function()
+          require('flash').remote()
+        end,
+        desc = 'Remote Flash',
+      },
+      {
+        'R',
+        mode = { 'o', 'x' },
+        function()
+          require('flash').treesitter_search()
+        end,
+        desc = 'Treesitter Search',
+      },
+      {
+        '<c-s>',
+        mode = 'c',
+        function()
+          require('flash').toggle()
+        end,
+        desc = 'Toggle Flash in Cmdline',
+      },
+    },
+  },
+  {
     'ggandor/leap.nvim',
     config = function()
-      require('leap').add_default_mappings()
+      require('leap').add_default_mappings(false) -- Don't override s/S
+      vim.keymap.set({ 'n', 'v', 'o' }, 'zl', function()
+        require('leap').leap { forward = true }
+      end, { desc = 'Leap forward' })
+
+      vim.keymap.set({ 'n', 'v', 'o' }, 'zL', function()
+        require('leap').leap { forward = false }
+      end, { desc = 'Leap backward' })
     end,
   },
+  {
+    'ThePrimeagen/refactoring.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {},
+    config = function()
+      require('refactoring').setup {}
+    end,
+  },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1405,8 +1471,8 @@ require('notify').setup {
 
 require('luasnip.loaders.from_lua').load { paths = '~/.config/nvim/lua/snippets' }
 -- Split shortcuts
-vim.keymap.set('n', '<leader>sv', ':vsplit<CR>', { desc = 'Split Vertical' })
 vim.keymap.set('n', '<leader>sh', ':split<CR>', { desc = 'Split Horizontal' })
+vim.keymap.set('n', '<leader>sv', ':vsplit<CR>', { desc = 'Split Vertical' })
 vim.keymap.set('n', '<leader>sx', ':close<CR>', { desc = 'Close split' })
 
 -- Resize splits
@@ -1434,6 +1500,3 @@ require('telescope').setup {
     },
   },
 }
-require('leap').set_default_keymaps()
-vim.keymap.set('n', 'g', '<Plug>(leap-forward)')
-vim.keymap.set('n', 'G', '<Plug>(leap-backward)')
