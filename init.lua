@@ -1136,6 +1136,12 @@ require('lazy').setup({
       vim.api.nvim_set_keymap('n', '<C-u>', '<cmd>call smooth_scroll#up(25, 10, 4)<CR>', { noremap = true, silent = true })
     end,
   },
+  {
+    'ggandor/leap.nvim',
+    config = function()
+      require('leap').add_default_mappings()
+    end,
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1398,3 +1404,36 @@ require('notify').setup {
 }
 
 require('luasnip.loaders.from_lua').load { paths = '~/.config/nvim/lua/snippets' }
+-- Split shortcuts
+vim.keymap.set('n', '<leader>sv', ':vsplit<CR>', { desc = 'Split Vertical' })
+vim.keymap.set('n', '<leader>sh', ':split<CR>', { desc = 'Split Horizontal' })
+vim.keymap.set('n', '<leader>sx', ':close<CR>', { desc = 'Close split' })
+
+-- Resize splits
+vim.keymap.set('n', '<C-Up>', ':resize +2<CR>')
+vim.keymap.set('n', '<C-Down>', ':resize -2<CR>')
+vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>')
+vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>')
+require('telescope').setup {
+  defaults = {
+    layout_strategy = 'horizontal',
+    layout_config = {
+      horizontal = {
+        preview_width = 0.45, -- smaller = more room for filenames
+        prompt_position = 'bottom',
+      },
+      vertical = {
+        preview_height = 0.5,
+      },
+    },
+    winblend = 10,
+  },
+  extensions = {
+    ['ui-select'] = {
+      require('telescope.themes').get_dropdown(),
+    },
+  },
+}
+require('leap').set_default_keymaps()
+vim.keymap.set('n', 'g', '<Plug>(leap-forward)')
+vim.keymap.set('n', 'G', '<Plug>(leap-backward)')
