@@ -1071,14 +1071,6 @@ require('lazy').setup({
     event = 'VeryLazy',
   },
   {
-    'akinsho/bufferline.nvim',
-    version = '*',
-    dependencies = 'nvim-tree/nvim-web-devicons',
-    config = function()
-      require('bufferline').setup {}
-    end,
-  },
-  {
     'lewis6991/impatient.nvim',
     config = function()
       require 'impatient'
@@ -1126,63 +1118,23 @@ require('lazy').setup({
     end,
   },
   {
-    'yetone/avante.nvim',
+    'm4xshen/hardtime.nvim',
     event = 'VeryLazy',
-    version = false, -- Never set this value to "*"! Never!
     opts = {
-      -- add any opts here
-      -- for example
-      provider = 'openai',
-      openai = {
-        endpoint = 'https://api.openai.com/v1',
-        model = 'gpt-4o', -- your desired model (or use gpt-4o, etc.)
-        timeout = 30000, -- Timeout in milliseconds, increase this for reasoning models
-        temperature = 0,
-        max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
-        --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
-      },
+      max_count = 5,
+      disable_mouse = true,
+      hint = true,
+      -- You can adjust these based on your preferences:
+      -- restricted_keys = { ["j"] = true, ["k"] = true }, -- for example
     },
-    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-    build = 'make',
-    -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter',
-      'stevearc/dressing.nvim',
-      'nvim-lua/plenary.nvim',
-      'MunifTanjim/nui.nvim',
-      --- The below dependencies are optional,
-      'echasnovski/mini.pick', -- for file_selector provider mini.pick
-      'nvim-telescope/telescope.nvim', -- for file_selector provider telescope
-      'hrsh7th/nvim-cmp', -- autocompletion for avante commands and mentions
-      'ibhagwan/fzf-lua', -- for file_selector provider fzf
-      'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
-      'zbirenbaum/copilot.lua', -- for providers='copilot'
-      {
-        -- support for image pasting
-        'HakonHarnes/img-clip.nvim',
-        event = 'VeryLazy',
-        opts = {
-          -- recommended settings
-          default = {
-            embed_image_as_base64 = false,
-            prompt_for_file_name = false,
-            drag_and_drop = {
-              insert_mode = true,
-            },
-            -- required for Windows users
-            use_absolute_path = true,
-          },
-        },
-      },
-      {
-        -- Make sure to set this up properly if you have lazy=true
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { 'markdown', 'Avante' },
-        },
-        ft = { 'markdown', 'Avante' },
-      },
-    },
+  },
+  {
+    'terryma/vim-smooth-scroll',
+    config = function()
+      -- Optional: Set up keymaps or custom config here
+      vim.api.nvim_set_keymap('n', '<C-d>', '<cmd>call smooth_scroll#down(25,10, 4)<CR>', { noremap = true, silent = true })
+      vim.api.nvim_set_keymap('n', '<C-u>', '<cmd>call smooth_scroll#up(25, 10, 4)<CR>', { noremap = true, silent = true })
+    end,
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1393,7 +1345,6 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   end,
 })
 -- after all your plugin setup:
-require 'snippets'
 vim.cmd [[
   highlight DapUIScopesBorder guifg=#FF6347 guibg=#282828
   highlight DapUIScopesText guifg=#32CD32 guibg=#1c1c1c
@@ -1445,3 +1396,5 @@ require('notify').setup {
   max_width = 50, -- Width of notifications
   max_height = 4, -- Limit max height
 }
+
+require('luasnip.loaders.from_lua').load { paths = '~/.config/nvim/lua/snippets' }
