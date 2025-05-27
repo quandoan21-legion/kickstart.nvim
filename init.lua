@@ -1332,8 +1332,15 @@ vim.api.nvim_set_keymap('n', '<Leader>dp', ':DBUIPrev<CR>', { noremap = true, si
 vim.api.nvim_set_keymap('n', '<Leader>dq', ':DBUIQuery<CR>', { noremap = true, silent = true })
 -- DAP UI bindings
 vim.keymap.set('n', '<Leader>du', function()
+  -- Close neo-tree if it's open
+  local ok, neotree = pcall(require, 'neo-tree.command')
+  if ok then
+    neotree.execute { action = 'close' }
+  end
+
+  -- Then toggle DAP UI
   require('dapui').toggle()
-end, { desc = 'DAP UI: Toggle' })
+end, { desc = 'DAP UI: Toggle (closes Neo-tree)' })
 -- Normal mode keybinding
 vim.keymap.set('n', '<C-T>', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' })
 
