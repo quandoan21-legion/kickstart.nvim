@@ -805,7 +805,6 @@ require('lazy').setup({
             },
           },
         },
-        lemminx = {},
 
         -- ✅ JavaScript/TypeScript LSP (recommended)
         ts_ls = {},
@@ -1118,70 +1117,12 @@ require('lazy').setup({
     end,
   },
   {
-    'm4xshen/hardtime.nvim',
-    event = 'VeryLazy',
-    opts = {
-      max_count = 5,
-      disable_mouse = true,
-      hint = true,
-      -- You can adjust these based on your preferences:
-      -- restricted_keys = { ["j"] = true, ["k"] = true }, -- for example
-    },
-  },
-  {
     'terryma/vim-smooth-scroll',
     config = function()
       -- Optional: Set up keymaps or custom config here
       vim.api.nvim_set_keymap('n', '<C-d>', '<cmd>call smooth_scroll#down(25,10, 4)<CR>', { noremap = true, silent = true })
       vim.api.nvim_set_keymap('n', '<C-u>', '<cmd>call smooth_scroll#up(25, 10, 4)<CR>', { noremap = true, silent = true })
     end,
-  },
-  {
-    'folke/flash.nvim',
-    event = 'VeryLazy',
-    opts = {},
-    keys = {
-      {
-        's',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('flash').jump()
-        end,
-        desc = 'Flash Jump',
-      },
-      {
-        'S',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('flash').treesitter()
-        end,
-        desc = 'Flash Treesitter',
-      },
-      {
-        'r',
-        mode = 'o',
-        function()
-          require('flash').remote()
-        end,
-        desc = 'Remote Flash',
-      },
-      {
-        'R',
-        mode = { 'o', 'x' },
-        function()
-          require('flash').treesitter_search()
-        end,
-        desc = 'Treesitter Search',
-      },
-      {
-        '<c-s>',
-        mode = 'c',
-        function()
-          require('flash').toggle()
-        end,
-        desc = 'Toggle Flash in Cmdline',
-      },
-    },
   },
   {
     'ggandor/leap.nvim',
@@ -1201,13 +1142,29 @@ require('lazy').setup({
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
+      'nvim-telescope/telescope.nvim', -- Optional for UI
+    },
+    config = function()
+      require('refactoring').setup()
+      -- Telescope extension (optional)
+      require('telescope').load_extension 'refactoring'
+    end,
+  },
+  {
+    'ThePrimeagen/refactoring.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
     },
     opts = {},
     config = function()
       require('refactoring').setup {}
     end,
   },
-
+  {
+    'Vimjas/vim-python-pep8-indent',
+    ft = 'python',
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1471,8 +1428,8 @@ require('notify').setup {
 
 require('luasnip.loaders.from_lua').load { paths = '~/.config/nvim/lua/snippets' }
 -- Split shortcuts
-vim.keymap.set('n', '<leader>sh', ':split<CR>', { desc = 'Split Horizontal' })
 vim.keymap.set('n', '<leader>sv', ':vsplit<CR>', { desc = 'Split Vertical' })
+vim.keymap.set('n', '<leader>sh', ':split<CR>', { desc = 'Split Horizontal' })
 vim.keymap.set('n', '<leader>sx', ':close<CR>', { desc = 'Close split' })
 
 -- Resize splits
@@ -1500,3 +1457,27 @@ require('telescope').setup {
     },
   },
 }
+-- Extract function (visual mode)
+vim.keymap.set('x', '<leader>re', function()
+  require('refactoring').refactor 'Extract Function'
+end, { desc = 'Extract Function' })
+
+-- Extract variable (visual mode)
+vim.keymap.set('x', '<leader>rv', function()
+  require('refactoring').refactor 'Extract Variable'
+end, { desc = 'Extract Variable' })
+
+-- Inline variable (normal or visual)
+vim.keymap.set({ 'n', 'x' }, '<leader>ri', function()
+  require('refactoring').refactor 'Inline Variable'
+end, { desc = 'Inline Variable' })
+
+-- Debug: print selected
+vim.keymap.set('n', '<leader>rp', function()
+  require('refactoring').debug.printf()
+end, { desc = 'Debug: printf' })
+
+-- Telescope menu (optional, visual mode)
+vim.keymap.set('x', '<leader>rr', function()
+  require('telescope').extensions.refactoring.refactors()
+end, { desc = 'Refactor (Telescope)' })
