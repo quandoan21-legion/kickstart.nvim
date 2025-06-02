@@ -522,27 +522,27 @@ require('lazy').setup({
       -- Optional configuration for vim-dadbod-ui, if needed
     end,
   },
-  -- {
-  --   'Pocco81/auto-save.nvim',
-  --   config = function()
-  --     require('auto-save').setup {
-  --       enabled = true,
-  --       events = { 'InsertLeave' }, -- Auto save khi rời insert mode
-  --       conditions = {
-  --         exists = true,
-  --         modifiable = true,
-  --         filetype_is_not = { 'harpoon' }, -- Tắt auto save cho harpoon buffers
-  --       },
-  --       execution_message = {
-  --         message = 'AutoSave: saved',
-  --         dim = 0.18,
-  --         cleaning_interval = 1250,
-  --       },
-  --       write_all_buffers = false,
-  --       debounce_delay = 135,
-  --     }
-  --   end,
-  -- },
+  {
+    'Pocco81/auto-save.nvim',
+    config = function()
+      require('auto-save').setup {
+        enabled = true,
+        events = { 'InsertLeave' }, -- Auto save khi rời insert mode
+        conditions = {
+          exists = true,
+          modifiable = true,
+          filetype_is_not = { 'harpoon' }, -- Tắt auto save cho harpoon buffers
+        },
+        execution_message = {
+          message = 'AutoSave: saved',
+          dim = 0.18,
+          cleaning_interval = 1250,
+        },
+        write_all_buffers = false,
+        debounce_delay = 135,
+      }
+    end,
+  },
   {
     'sphamba/smear-cursor.nvim',
     event = 'VeryLazy',
@@ -1223,7 +1223,51 @@ require('lazy').setup({
         desc = 'Open Snipe buffer menu',
       },
     },
-    opts = {}, -- You can pass configuration options here if needed
+    opts = {
+      ui = {
+        ---@type integer
+        max_height = -1, -- -1 means dynamic height
+        ---@type "topleft"|"bottomleft"|"topright"|"bottomright"|"center"|"cursor"
+        position = 'center', -- Where to place the UI window
+        open_win_override = {
+          border = 'rounded', -- Use "rounded" if you prefer a rounded border
+        },
+        preselect_current = false,
+        ---@type nil|fun(buffers: snipe.Buffer[]): number
+        preselect = nil, -- You could use a function here to choose which buffer to preselect
+        ---@type "left"|"right"|"file-first"
+        text_align = 'left',
+        -- Example of a custom buffer_format:
+        buffer_format = {
+          '->',
+          'icon',
+          'filename',
+          '',
+          'directory',
+          function(buf)
+            if vim.fn.isdirectory(vim.api.nvim_buf_get_name(buf.id)) == 1 then
+              return ' ', 'SnipeText'
+            end
+          end,
+        },
+      },
+      hints = {
+        ---@type string
+        dictionary = 'sadflewcmpghio',
+      },
+      navigate = {
+        next_page = 'J',
+        prev_page = 'K',
+        under_cursor = '<cr>',
+        cancel_snipe = '<esc>',
+        close_buffer = 'D',
+        open_vsplit = 'V',
+        open_split = 'H',
+        change_tag = 'C',
+      },
+      ---@type "last"|"default"|fun(bs:snipe.Buffer[]):snipe.Buffer[]
+      sort = 'default',
+    }, -- You can pass configuration options here if needed
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
