@@ -1135,18 +1135,92 @@ require('lazy').setup({
     end,
   },
   {
-    'ggandor/leap.nvim',
-    config = function()
-      require('leap').add_default_mappings(false) -- Don't override s/S
-      vim.keymap.set({ 'n', 'v', 'o' }, 'zl', function()
-        require('leap').leap { forward = true }
-      end, { desc = 'Leap forward' })
-
-      vim.keymap.set({ 'n', 'v', 'o' }, 'zL', function()
-        require('leap').leap { forward = false }
-      end, { desc = 'Leap backward' })
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    keys = {
+      {
+        's',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').jump()
+        end,
+        desc = 'Flash Jump',
+      },
+      {
+        'S',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').treesitter()
+        end,
+        desc = 'Flash Treesitter',
+      },
+      {
+        'r',
+        mode = 'o',
+        function()
+          require('flash').remote()
+        end,
+        desc = 'Flash Remote',
+      },
+      {
+        'R',
+        mode = { 'o', 'x' },
+        function()
+          require('flash').treesitter_search()
+        end,
+        desc = 'Flash Treesitter Search',
+      },
+      {
+        '<C-s>',
+        mode = { 'c' },
+        function()
+          require('flash').toggle()
+        end,
+        desc = 'Toggle Flash Search',
+      },
+    },
+    opts = {
+      labels = 'asdfghjklqwertyuiopzxcvbnm', -- Keys shown next to matches
+      search = {
+        mode = 'search',
+        incremental = true,
+      },
+      jump = {
+        autojump = false,
+        nohlsearch = true,
+        preserve = true, -- 🔥 keep cursor position after jumping
+      },
+      highlight = {
+        backdrop = true,
+        matches = true,
+      },
+      modes = {
+        char = {
+          enabled = true,
+          keys = { 'f', 'F', 't', 'T' },
+        },
+      },
+    },
+    config = function(_, opts)
+      require('flash').setup(opts)
+      vim.cmd [[
+      highlight FlashLabel guifg=#000000 guibg=#ffff00 gui=bold
+    ]]
     end,
   },
+  -- {
+  --   'ggandor/leap.nvim',
+  --   config = function()
+  --     require('leap').add_default_mappings(false) -- Don't override s/S
+  --     vim.keymap.set({ 'n', 'v', 'o' }, 'zl', function()
+  --       require('leap').leap { forward = true }
+  --     end, { desc = 'Leap forward' })
+  --
+  --     vim.keymap.set({ 'n', 'v', 'o' }, 'zL', function()
+  --       require('leap').leap { forward = false }
+  --     end, { desc = 'Leap backward' })
+  --   end,
+  -- },
   {
     'Vimjas/vim-python-pep8-indent',
     ft = 'python',
