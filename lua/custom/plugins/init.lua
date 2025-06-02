@@ -15,9 +15,9 @@ return {
       -- Optional configuration for vim-dadbod-ui, if needed
     end,
   },
-  {
-    'Pocco81/auto-save.nvim',
-  },
+  -- {
+  --   'Pocco81/auto-save.nvim',
+  -- },
   {
     'sphamba/smear-cursor.nvim',
     event = 'VeryLazy',
