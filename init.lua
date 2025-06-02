@@ -524,6 +524,24 @@ require('lazy').setup({
   },
   -- {
   --   'Pocco81/auto-save.nvim',
+  --   config = function()
+  --     require('auto-save').setup {
+  --       enabled = true,
+  --       events = { 'InsertLeave' }, -- Auto save khi rời insert mode
+  --       conditions = {
+  --         exists = true,
+  --         modifiable = true,
+  --         filetype_is_not = { 'harpoon' }, -- Tắt auto save cho harpoon buffers
+  --       },
+  --       execution_message = {
+  --         message = 'AutoSave: saved',
+  --         dim = 0.18,
+  --         cleaning_interval = 1250,
+  --       },
+  --       write_all_buffers = false,
+  --       debounce_delay = 135,
+  --     }
+  --   end,
   -- },
   {
     'sphamba/smear-cursor.nvim',
@@ -1117,14 +1135,6 @@ require('lazy').setup({
     end,
   },
   {
-    'terryma/vim-smooth-scroll',
-    config = function()
-      -- Optional: Set up keymaps or custom config here
-      vim.api.nvim_set_keymap('n', '<C-d>', '<cmd>call smooth_scroll#down(25,10, 4)<CR>', { noremap = true, silent = true })
-      vim.api.nvim_set_keymap('n', '<C-u>', '<cmd>call smooth_scroll#up(25, 10, 4)<CR>', { noremap = true, silent = true })
-    end,
-  },
-  {
     'ggandor/leap.nvim',
     config = function()
       require('leap').add_default_mappings(false) -- Don't override s/S
@@ -1135,30 +1145,6 @@ require('lazy').setup({
       vim.keymap.set({ 'n', 'v', 'o' }, 'zL', function()
         require('leap').leap { forward = false }
       end, { desc = 'Leap backward' })
-    end,
-  },
-  {
-    'ThePrimeagen/refactoring.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
-      'nvim-telescope/telescope.nvim', -- Optional for UI
-    },
-    config = function()
-      require('refactoring').setup()
-      -- Telescope extension (optional)
-      require('telescope').load_extension 'refactoring'
-    end,
-  },
-  {
-    'ThePrimeagen/refactoring.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
-    },
-    opts = {},
-    config = function()
-      require('refactoring').setup {}
     end,
   },
   {
@@ -1174,14 +1160,14 @@ require('lazy').setup({
     end,
     keys = {
       {
-        '<leader>A',
+        '<leader>H',
         function()
           require('harpoon'):list():append()
         end,
         desc = 'harpoon file',
       },
       {
-        '<leader>a',
+        '<leader>h',
         function()
           local harpoon = require 'harpoon'
           harpoon.ui:toggle_quick_menu(harpoon:list())
@@ -1224,6 +1210,20 @@ require('lazy').setup({
         desc = 'harpoon to file 5',
       },
     },
+  },
+  {
+    'leath-dub/snipe.nvim',
+    keys = {
+      -- Change "gb" to "<leader>sb" or any other mapping you prefer:
+      {
+        '<leader>sb',
+        function()
+          require('snipe').open_buffer_menu()
+        end,
+        desc = 'Open Snipe buffer menu',
+      },
+    },
+    opts = {}, -- You can pass configuration options here if needed
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
