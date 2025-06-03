@@ -4,8 +4,20 @@ local t = ls.text_node
 local i = ls.insert_node
 
 return {
+  -- Selection field
+  s('fsel', {
+    t 'fields.Selection([',
+    t "('",
+    i(1, 'option1'),
+    t "', '",
+    i(2, 'Label 1'),
+    t "'), ('",
+    i(3, 'option2'),
+    t "', '",
+  }),
   -- Char field
   s('fchar', {
+
     t 'fields.Char(string="',
     i(1, 'Field Label'),
     t '")',
