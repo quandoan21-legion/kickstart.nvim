@@ -70,7 +70,7 @@ return {
           'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
           '-d',
           'cesiot',
-          '--xml-rpc-port',
+          '--xmlrpc-port',
           '8999',
         },
         pythonPath = function()
