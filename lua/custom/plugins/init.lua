@@ -58,6 +58,29 @@ return {
       dap_python.setup(debugpy_path)
 
       dap.configurations.python = dap.configurations.python or {}
+      table.insert(dap.configurations.python, {
+        type = 'python',
+        name = 'Odoo Cesiot',
+        request = 'launch',
+        program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
+        args = {
+          '-c',
+          '/Users/quandoan/Desktop/odoo-18.0-copy/debian/odoo-tayoong.conf',
+          '-u',
+          'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
+          '-d',
+          'cesiot',
+          -- '-i',
+          -- 'base',
+        },
+        pythonPath = function()
+          return '/usr/local/bin/python3.12'
+        end,
+        cwd = vim.fn.getcwd(),
+        env = { PYTHONUNBUFFERED = '1' },
+        console = 'integratedTerminal',
+      })
+
       -- Ta-yoong project debug config
       table.insert(dap.configurations.python, {
         type = 'python',
