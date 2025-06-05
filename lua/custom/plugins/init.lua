@@ -70,8 +70,8 @@ return {
           'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
           '-d',
           'cesiot',
-          -- '-i',
-          -- 'base',
+          '--xml-rpc-port',
+          '8999',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
