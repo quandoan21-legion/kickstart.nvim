@@ -815,7 +815,7 @@ require('lazy').setup({
           settings = {
             python = {
               analysis = {
-                typeCheckingMode = 'basic', -- ✅ disable type errors
+                typeCheckingMode = 'off', -- ✅ disable type errors
                 diagnosticMode = 'openFilesOnly', -- ✅ optional: only open buffers, not full project
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
@@ -1700,3 +1700,4 @@ vim.keymap.set('x', '<leader>rr', function()
   require('telescope').extensions.refactoring.refactors()
 end, { desc = 'Refactor (Telescope)' })
 vim.cmd.colorscheme 'dracula'
+require('dap').set_log_level 'TRACE'

@@ -65,13 +65,63 @@ return {
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
         args = {
           '-c',
+          '/Users/quandoan/Desktop/odoo-18.0-copy/debian/odoo-cesiot.conf',
+          '-u',
+          'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
+          '-d',
+          'cesiot-3',
+          '--xmlrpc-port',
+          '8999',
+          -- '-i',
+          -- 'base',
+        },
+        pythonPath = function()
+          return '/usr/local/bin/python3.12'
+        end,
+        cwd = vim.fn.getcwd(),
+        env = { PYTHONUNBUFFERED = '1' },
+        console = 'integratedTerminal',
+      })
+      table.insert(dap.configurations.python, {
+        name = 'Odoo Tayoong 18.3',
+        type = 'python',
+        request = 'launch',
+        program = '/Users/quandoan/Desktop/odoo/odoo-bin',
+        args = {
+          '-c',
+          '/Users/quandoan/Desktop/odoo/debian/odoo-tayoong.conf',
+          '-u',
+          'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
+          '-d',
+          'tayoong-18.3',
+          -- '-i',
+          -- 'base',
+
+          -- '--xmlrpc-port',
+          -- '8990',
+        },
+        pythonPath = function()
+          return '/usr/local/bin/python3.12'
+        end,
+        cwd = vim.fn.getcwd(),
+        env = { PYTHONUNBUFFERED = '1' },
+        console = 'integratedTerminal',
+      })
+
+      table.insert(dap.configurations.python, {
+        name = 'Odoo Tayoong DEV',
+        type = 'python',
+        request = 'launch',
+        program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
+        args = {
+          '-c',
           '/Users/quandoan/Desktop/odoo-18.0-copy/debian/odoo-tayoong.conf',
           '-u',
           'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
           '-d',
-          'cesiot',
+          'tayoong-2',
           '--xmlrpc-port',
-          '8999',
+          '8990',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
@@ -91,9 +141,9 @@ return {
           '-c',
           '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
           '-u',
-          'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice',
+          'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice,loan_managment',
           '-d',
-          'tayoong',
+          'tayoong-1',
           -- '-i',
           -- 'base',
         },
