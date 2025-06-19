@@ -1699,5 +1699,62 @@ end, { desc = 'Debug: printf' })
 vim.keymap.set('x', '<leader>rr', function()
   require('telescope').extensions.refactoring.refactors()
 end, { desc = 'Refactor (Telescope)' })
-vim.cmd.colorscheme 'dracula'
+vim.cmd.colorscheme 'tokyonight-storm'
 require('dap').set_log_level 'TRACE'
+
+-- [[ Custom DAP Highlights ]]
+-- Add a bright orange highlight for the DAP breakpoint and current execution lines.
+-- This is wrapped in a ColorScheme autocommand to re-apply it when the colorscheme changes.
+local create_dap_hl = function()
+  local orange = '#FFA500'
+  local dark_text = '#1a1b26'
+
+  -- 1. Highlight for the entire line (for both stopped line and breakpoints)
+  vim.api.nvim_set_hl(0, 'DapLineHighlight', { bg = orange, fg = dark_text })
+
+  -- 2. Highlight for the breakpoint ICON itself.
+  --    We set the foreground of the 'DapBreakpoint' and 'DapLogPoint' groups to orange.
+  vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg = orange })
+  vim.api.nvim_set_hl(0, 'DapLogPoint', { fg = orange })
+
+  -- 3. Redefine the DAP signs to use our new highlights.
+
+  -- The 'DapStopped' icon will keep its default color for distinction, but use the orange line highlight.
+  vim.fn.sign_define('DapStopped', {
+    text = '▶',
+    texthl = 'DapStopped',
+    linehl = 'DapLineHighlight',
+    numhl = 'DapLineHighlight',
+  })
+
+  -- The 'DapBreakpoint' icon will now be orange and also use the orange line highlight.
+  vim.fn.sign_define('DapBreakpoint', {
+    text = '●',
+    texthl = 'DapBreakpoint',
+    linehl = 'DapLineHighlight',
+    numhl = 'DapLineHighlight',
+  })
+
+  vim.fn.sign_define('DapBreakpointCondition', {
+    text = '◆',
+    texthl = 'DapBreakpoint',
+    linehl = 'DapLineHighlight',
+    numhl = 'DapLineHighlight',
+  })
+
+  vim.fn.sign_define('DapLogPoint', {
+    text = '◆',
+    texthl = 'DapLogPoint',
+    linehl = 'DapLineHighlight',
+    numhl = 'DapLineHighlight',
+  })
+end
+
+-- Create an autocommand that runs our highlight function whenever a colorscheme is loaded
+vim.api.nvim_create_autocmd('ColorScheme', {
+  pattern = '*',
+  callback = create_dap_hl,
+})
+
+-- Run the function once on startup, in case the colorscheme is already set
+create_dap_hl()

@@ -109,19 +109,21 @@ return {
       })
 
       table.insert(dap.configurations.python, {
-        name = 'Odoo Tayoong DEV',
+        name = 'Odoo Tayarlo',
         type = 'python',
         request = 'launch',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
         args = {
           '-c',
-          '/Users/quandoan/Desktop/odoo-18.0-copy/debian/odoo-tayoong.conf',
+          '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayarlo.conf',
           '-u',
           'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
-          '-d',
-          'tayoong-2',
+          -- '-d',
+          -- 'tayarlo',
           '--xmlrpc-port',
-          '8990',
+          '6969',
+          -- '-i',
+          -- 'base',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
@@ -143,9 +145,9 @@ return {
           '-u',
           'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice,loan_managment',
           '-d',
-          'tayoong-3',
-          '-i',
-          'base',
+          'tayoong-5',
+          -- '-i',
+          -- 'base',
         },
         pythonPath = function()
           return '/usr/local/bin/python3.12'
