@@ -811,18 +811,35 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {
+        pylsp = {
           settings = {
-            python = {
-              analysis = {
-                typeCheckingMode = 'off', -- ✅ disable type errors
-                diagnosticMode = 'openFilesOnly', -- ✅ optional: only open buffers, not full project
-                autoSearchPaths = true,
-                useLibraryCodeForTypes = true,
+            pylsp = {
+              plugins = {
+                pycodestyle = {
+                  -- Sets the max line length to 88 to match the 'black' formatter
+                  maxLineLength = 200,
+                },
               },
             },
           },
         },
+        ast_grep = {
+          settings = {
+            python = {},
+          },
+        },
+        -- pyright = {
+        --   settings = {
+        --     python = {
+        --       analysis = {
+        --         typeCheckingMode = 'off', -- ✅ disable type errors
+        --         diagnosticMode = 'off', -- ✅ optional: only open buffers, not full project
+        --         autoSearchPaths = true,
+        --         useLibraryCodeForTypes = true,
+        --       },
+        --     },
+        --   },
+        -- },
 
         -- ✅ JavaScript/TypeScript LSP (recommended)
         ts_ls = {},
@@ -925,7 +942,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        python = { 'black', 'isort' },
+        python = { 'ast_grep', 'black', 'isort' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
@@ -1221,10 +1238,6 @@ require('lazy').setup({
   --     end, { desc = 'Leap backward' })
   --   end,
   -- },
-  {
-    'Vimjas/vim-python-pep8-indent',
-    ft = 'python',
-  },
   {
     'theprimeagen/harpoon',
     branch = 'harpoon2',
