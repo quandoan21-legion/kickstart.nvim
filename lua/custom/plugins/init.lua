@@ -60,6 +60,31 @@ return {
       dap.configurations.python = dap.configurations.python or {}
       table.insert(dap.configurations.python, {
         type = 'python',
+        name = 'Odoo MrBur',
+        request = 'launch',
+        program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
+        args = {
+          '-c',
+          '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-mrbur.conf',
+          '-u',
+          'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
+          -- '-d',
+          -- 'cesiot-3',
+          '--xmlrpc-port',
+          '8699',
+          -- '-i',
+          -- 'base',
+        },
+        pythonPath = function()
+          return '/usr/local/bin/python3.12'
+        end,
+        cwd = vim.fn.getcwd(),
+        env = { PYTHONUNBUFFERED = '1' },
+        console = 'integratedTerminal',
+      })
+
+      table.insert(dap.configurations.python, {
+        type = 'python',
         name = 'Odoo Cesiot',
         request = 'launch',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
