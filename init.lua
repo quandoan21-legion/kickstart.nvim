@@ -1,4 +1,5 @@
---[[
+
+  --[[
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
@@ -308,6 +309,21 @@ require('lazy').setup({
     end,
   },
   {
+    'puremourning/vimspector',
+    -- You might add dependencies here if they are not already managed
+    -- For example: 'nvim-lua/plenary.nvim' is a common dependency for many plugins
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    -- Optional: Lazy load Vimspector. For example, load on `VimspectorToggle` command.
+    cmd = { 'VimspectorToggle', 'VimspectorInstall', 'VimspectorUpdate' },
+    -- Optional: Configuration function to be called after plugin is loaded
+    config = function()
+      -- Any global settings for Vimspector can go here
+      -- For example: vim.g.vimspector_enable_mappings = 'HUMAN'
+    end,
+  },
+  {
     'mfussenegger/nvim-dap-python',
     dependencies = { 'mfussenegger/nvim-dap' },
     config = function()
@@ -382,6 +398,7 @@ require('lazy').setup({
       },
     },
   },
+  { 'nicholasmata/nvim-dap-cs', dependencies = { 'mfussenegger/nvim-dap' } },
 
   -- NOTE: Plugins can specify dependencies.
   --
@@ -389,7 +406,6 @@ require('lazy').setup({
   -- you do for a plugin at the top level, you can do for a dependency.
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
-
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
@@ -533,8 +549,8 @@ require('lazy').setup({
           modifiable = true,
           filetype_is_not = { 'harpoon' }, -- Tắt auto save cho harpoon buffers
         },
+        message = 'AutoSave: saved',
         execution_message = {
-          message = 'AutoSave: saved',
           dim = 0.18,
           cleaning_interval = 1250,
         },
@@ -1772,3 +1788,4 @@ vim.api.nvim_create_autocmd('ColorScheme', {
 
 -- Run the function once on startup, in case the colorscheme is already set
 create_dap_hl()
+require('dap-cs').setup()

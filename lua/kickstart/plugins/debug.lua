@@ -84,7 +84,7 @@ return {
 
     -- Odoo 18 (Tayoong)
     table.insert(dap.configurations.python, {
-      name = 'Odoo Tayoong',
+      name = 'Odoo Tayoong 8669',
       type = 'python',
       request = 'launch',
       program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
@@ -93,8 +93,12 @@ return {
         '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
         '-u',
         'a1_einvoice_to_gov',
+        '-i',
+        'base',
+        '-d',
+        'tayoong-12',
         '--xmlrpc-port',
-        '8066',
+        '8669',
       },
       pythonPath = function()
         return '/usr/local/bin/python3.12'
