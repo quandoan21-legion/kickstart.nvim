@@ -38,7 +38,7 @@ return {
     priority = 1000,
     config = function()
       require('tokyonight').setup {
-        transparent = true,
+        transparent = false,
       }
       vim.cmd 'colorscheme tokyonight'
     end,
@@ -108,17 +108,17 @@ return {
         console = 'integratedTerminal',
       })
       table.insert(dap.configurations.python, {
-        name = 'Odoo Tayoong 18.3',
+        name = 'Odoo Tayoong no update',
         type = 'python',
         request = 'launch',
         program = '/Users/quandoan/Desktop/odoo/odoo-bin',
         args = {
           '-c',
           '/Users/quandoan/Desktop/odoo/debian/odoo-tayoong.conf',
-          '-u',
-          'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
-          '-d',
-          'tayoong-18.3',
+          -- '-u',
+          -- 'a1_einvoice_to_gov,cesiot_issue_consolidate_invoice',
+          -- '-d',
+          -- 'tayoong-18.3',
           -- '-i',
           -- 'base',
 
@@ -144,7 +144,7 @@ return {
           '-u',
           'a1_einvoice_to_gov,issue_consolidate_invoice',
           '-d',
-          'tayarlo-8',
+          'tayarlo-11',
           '--xmlrpc-port',
           '6969',
           -- '-i',
@@ -168,9 +168,9 @@ return {
           '-c',
           '/Users/quandoan/Desktop/odoo-18.0/debian/odoo-tayoong.conf',
           '-u',
-          'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice,loan_managment',
-          '-d',
-          'tayoong-9',
+          'a1_einvoice_to_gov,loan_managment',
+          -- '-d',
+          -- 'tayoong-10',
           -- '-i',
           -- 'base',
         },
