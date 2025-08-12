@@ -546,13 +546,13 @@ require('lazy').setup({
         },
       }
 
-      require('dap-python').setup '/usr/local/bin/python3.12'
+      require('dap-python').setup '/home/juan/.pyenv/shims/python'
       table.insert(require('dap').configurations.python, {
         type = 'python',
         request = 'launch',
         name = 'base',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-        pythonPath = '/usr/local/bin/python3.12',
+        pythonPath = '/home/juan/.pyenv/shims/python',
         args = {
           '-c',
           'debian/odoo-base.conf',
@@ -572,7 +572,7 @@ require('lazy').setup({
         request = 'launch',
         name = 'Tayoong',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-        pythonPath = '/usr/local/bin/python3.12',
+        pythonPath = '/home/juan/.pyenv/shims/python',
         args = {
           '-c',
           'debian/odoo-tayoong.conf',
@@ -594,7 +594,7 @@ require('lazy').setup({
         request = 'launch',
         program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
         name = 'E-invoice',
-        pythonPath = '/usr/local/bin/python3.12',
+        pythonPath = '/home/juan/.pyenv/shims/python',
         args = {
           '-c',
           'debian/odoo-e-invoice.conf',
