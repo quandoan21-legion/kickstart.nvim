@@ -271,7 +271,24 @@ require('lazy').setup({
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`.
   --
-  -- See `:help gitsigns` to understand what the configuration keys do
+  -- See `:help gitsigns` to understand what the configuration keys d
+  {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup {
+        current_line_blame = true, -- show inline blame
+        current_line_blame_opts = {
+          delay = 500,
+          virt_text_pos = 'eol',
+        },
+        current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
+      }
+
+      -- keymaps
+      vim.keymap.set('n', '<leader>gb', ':Gitsigns blame_line<CR>', { desc = 'Git blame line' })
+      vim.keymap.set('n', '<leader>gB', ':Gitsigns toggle_current_line_blame<CR>', { desc = 'Toggle git blame' })
+    end,
+  },
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -351,6 +368,9 @@ require('lazy').setup({
       },
     },
   },
+  { 'alec-gibson/nvim-tetris' },
+  { 'seandewar/actually-doom.nvim' },
+  { 'Yu-Leo/blame-column.nvim' },
   {
     -- NOTE: Yes, you can install new plugins here!
     'mfussenegger/nvim-dap',
@@ -777,7 +797,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
+      vim.keymap.set('n', '<leader>fp', function()
+        local path = vim.fn.input('Path: ', vim.fn.expand '~', 'dir')
+        require('telescope.builtin').find_files { cwd = path }
+      end, { desc = 'Find files in custom path' })
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -852,7 +875,8 @@ require('lazy').setup({
       --  - Autocompletion
       --  - Symbol Search
       --  - and more!
-      --
+      local lspconfig = require 'lspconfig'
+      lspconfig.pyright.setup {}
       -- Thus, Language Servers are external tools that must be installed separately from
       -- Neovim. This is where `mason` and related plugins come into play.
       --
@@ -1022,7 +1046,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -1076,6 +1100,12 @@ require('lazy').setup({
           end,
         },
       }
+    end,
+  },
+  {
+    'romus204/referencer.nvim',
+    config = function()
+      require('referencer').setup()
     end,
   },
   {
