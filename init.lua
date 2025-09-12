@@ -840,6 +840,25 @@ require('lazy').setup({
     },
   },
   {
+    'tweekmonster/braceless.vim',
+    ft = { 'python', 'yaml', 'coffee', 'haml' }, -- Load only for these filetypes
+    config = function()
+      -- Enable braceless for Python files
+      vim.g.braceless_enable_basic_indent = 1
+
+      -- Optional: Set up key mappings
+      -- These will be available in the specified filetypes
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'python', 'yaml', 'coffee', 'haml' },
+        callback = function()
+          -- Example mappings (adjust as needed)
+          vim.keymap.set('n', '<leader>bi', ':BracelessIndent<CR>', { buffer = true, desc = 'Braceless indent' })
+          vim.keymap.set('n', '<leader>bd', ':BracelessDedent<CR>', { buffer = true, desc = 'Braceless dedent' })
+        end,
+      })
+    end,
+  },
+  {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -1362,6 +1381,33 @@ require('lazy').setup({
       statusline.section_location = function()
         return '%2l:%-2v'
       end
+    end,
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    event = 'VeryLazy',
+    opts = {
+      enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+      max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
+      min_window_height = 0, -- Minimum editor window height to enable context. Values <= 0 mean no limit.
+      line_numbers = true,
+      multiline_threshold = 20, -- Maximum number of lines to show for a single context
+      trim_scope = 'outer', -- Which context lines to discard if `max_lines` is exceeded. Choices: 'inner', 'outer'
+      mode = 'cursor', -- Line used to calculate context. Choices: 'cursor', 'topline'
+      -- Separator between context and content. Should be a single character string, like '-'.
+      -- When separator is set, the context will only show up when there are at least 2 lines above cursorline.
+      separator = nil,
+      zindex = 20, -- The Z-index of the context window
+    },
+    config = function(_, opts)
+      require('treesitter-context').setup(opts)
+
+      -- Optional: Add keymaps to toggle context
+      vim.keymap.set('n', '[c', function()
+        require('treesitter-context').go_to_context(vim.v.count1)
+      end, { silent = true, desc = 'Go to context' })
+
+      vim.keymap.set('n', '<leader>tc', '<cmd>TSContextToggle<cr>', { desc = 'Toggle Treesitter Context' })
     end,
   },
   {
