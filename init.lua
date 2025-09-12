@@ -1,4 +1,5 @@
 --[[
+--
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -575,7 +576,7 @@ require('lazy').setup({
         pythonPath = '/home/juan/.pyenv/shims/python',
         args = {
           '-c',
-          'debian/odoo-tayoong.conf',
+          'debian/odoo-e-invoice.conf',
           '-u',
           'a1_einvoice_to_gov',
           -- '-d',
@@ -592,23 +593,49 @@ require('lazy').setup({
       table.insert(require('dap').configurations.python, {
         type = 'python',
         request = 'launch',
-        program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-        name = 'E-invoice',
-        pythonPath = '/home/juan/.pyenv/shims/python',
+        name = 'Odoo 14',
+        program = '/home/juan/Desktop/odoo14/odoo-bin',
+        pythonPath = '/home/juan/Desktop/odoo14/.venv/bin/python',
+        cwd = '/home/juan/Desktop/odoo14',
         args = {
           '-c',
-          'debian/odoo-e-invoice.conf',
-          '-u',
-          'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice,issue_consolidate_invoice',
-
+          '/home/juan/Desktop/odoo14/debian/odoo.conf', -- make sure this file exists
+          '--http-port',
+          '8090', -- prefer http-port on v14
+          -- optional:
           -- '-d',
-          -- 'e-invoice-3',
+          -- 'tayarlo-19-08',
+          '-u',
+          'a1_einvoice_to_gov,issue_consolidate_invoice',
+        },
+        justMyCode = false,
+        subProcess = true, -- follow child processes if Odoo spawns any
+        env = {
+          PYTHONPATH = '/Users/quandoan/Desktop/odoo14',
+        },
+      })
+
+      table.insert(require('dap').configurations.python, {
+        type = 'python',
+        request = 'launch',
+        program = '/home/juan/Desktop/odoo/odoo-bin',
+        name = 'E-invoice',
+        pythonPath = 'python',
+        args = {
+          '-c',
+          '/home/juan/Desktop/odoo/debian/odoo-e-invoice.conf',
+          '-u',
+          'a1_einvoice_to_gov,issue_consolidate_invoice',
+          -- '-i',
+          -- 'base',
+          '-d',
+          'tayarlo-19-08',
           '--xmlrpc-port',
           '8099',
         },
         justMyCode = false,
         env = {
-          PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0',
+          PYTHONPATH = 'python',
         },
       })
     end,
