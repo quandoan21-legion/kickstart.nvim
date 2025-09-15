@@ -302,6 +302,14 @@ require('lazy').setup({
     },
   },
 
+  {
+    'windwp/nvim-ts-autotag',
+    event = 'VeryLazy',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
+    config = function()
+      require('nvim-ts-autotag').setup()
+    end,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -494,34 +502,49 @@ require('lazy').setup({
       local dapui = require 'dapui'
 
       local dap = require 'dap'
-
       dap.adapters.coreclr = {
         type = 'executable',
         command = vim.fn.stdpath 'data' .. '/mason/packages/netcoredbg/netcoredbg',
         args = { '--interpreter=vscode' },
       }
 
-      -- make sure this path is correct for *your* project name & TF:
-      local project_folder = vim.fn.getcwd()
-      local dll_path = project_folder .. '/bin/Debug/net8.0/MyWebApp.dll'
+      local function get_project_dll()
+        local cwd = vim.fn.getcwd()
+        local project_name = vim.fn.fnamemodify(cwd, ':t') -- folder name = project name
+        local debug_dir = cwd .. '/bin/Debug'
+
+        -- Find netX.Y dynamically (e.g. net6.0, net7.0, net9.0)
+        local frameworks = vim.fn.globpath(debug_dir, 'net*', 0, 1)
+        if #frameworks == 0 then
+          vim.notify('❌ No framework folders found in ' .. debug_dir .. '. Run `dotnet build` first!', vim.log.levels.ERROR)
+          return ''
+        end
+
+        local dll_path = frameworks[1] .. '/' .. project_name .. '.dll'
+        if vim.fn.filereadable(dll_path) == 1 then
+          return dll_path
+        else
+          vim.notify('❌ Could not find ' .. dll_path .. '. Did you build the project?', vim.log.levels.ERROR)
+          return ''
+        end
+      end
 
       dap.configurations.cs = {
         {
           type = 'coreclr',
-          name = 'Launch WebApp DLL',
+          name = 'Launch ASP.NET Core (auto-detect)',
           request = 'launch',
-          program = dll_path,
-          cwd = project_folder,
+          program = function()
+            return get_project_dll()
+          end,
+          cwd = '${workspaceFolder}',
           stopAtEntry = false,
           env = {
             ASPNETCORE_ENVIRONMENT = 'Development',
-            ASPNETCORE_URLS = 'http://localhost:5064',
+            ASPNETCORE_URLS = 'http://localhost:5000',
           },
         },
       }
-
-      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-      -- For more information, see |:help nvim-dap-ui|
       dapui.setup {
         -- Set icons to characters that are more likely to work in every terminal.
         --    Feel free to remove or use ones that you like more! :)
@@ -1066,8 +1089,16 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         ts_ls = {},
-        --
-
+        omnisharp = {
+          -- Extra settings for better ASP.NET experience
+          enable_editorconfig_support = true,
+          enable_ms_build_load_projects_on_demand = false,
+          enable_roslyn_analyzers = true,
+          organize_imports_on_format = true,
+          enable_import_completion = true,
+          sdk_include_prereleases = true,
+          analyze_open_documents_only = false,
+        },
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
