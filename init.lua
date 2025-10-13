@@ -434,6 +434,7 @@ require('lazy').setup({
       -- Add your own debuggers here
       'leoluz/nvim-dap-go',
       'mfussenegger/nvim-dap-python',
+      'nvim-java/nvim-java',
     },
     keys = {
       -- Basic debugging keymaps, feel free to change to your liking!
@@ -532,9 +533,11 @@ require('lazy').setup({
           'delve',
           'python',
           'netcoredbg',
+          'java-debug-adapter',
+          'java-test',
         },
       }
-      -- ─────────────── ADD HERE ───────────────────
+      -- ─────────────── C# CONFIGURATION ───────────────────
       -- local dap   = require 'dap'
       local dapui = require 'dapui'
 
@@ -582,6 +585,8 @@ require('lazy').setup({
           },
         },
       }
+
+      -- ─────────────── DAP UI SETUP ───────────────────
       dapui.setup {
         -- Set icons to characters that are more likely to work in every terminal.
         --    Feel free to remove or use ones that you like more! :)
@@ -605,8 +610,7 @@ require('lazy').setup({
       -- Change breakpoint icons
       vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
       vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
-      local breakpoint_icons = vim.g.have_nerd_font
-          and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+      local breakpoint_icons = vim.g.have_nerd_font and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
         or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
       for type, icon in pairs(breakpoint_icons) do
         local tp = 'Dap' .. type
@@ -618,7 +622,7 @@ require('lazy').setup({
       dap.listeners.before.event_terminated['dapui_config'] = dapui.close
       dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
-      -- Install golang specific config
+      -- ─────────────── GO CONFIGURATION ───────────────────
       require('dap-go').setup {
         delve = {
           -- On Windows delve must be run attached or it crashes.
@@ -627,7 +631,9 @@ require('lazy').setup({
         },
       }
 
+      -- ─────────────── PYTHON CONFIGURATION ───────────────────
       require('dap-python').setup '/home/juan/.pyenv/shims/python'
+
       table.insert(require('dap').configurations.python, {
         type = 'python',
         request = 'launch',
@@ -718,6 +724,69 @@ require('lazy').setup({
         env = {
           PYTHONPATH = 'python',
         },
+      })
+
+      dap.configurations.java = {
+        {
+          type = 'java',
+          request = 'launch',
+          name = 'Debug (Attach) - Remote',
+          hostName = 'localhost',
+          port = 5005,
+        },
+        {
+          type = 'java',
+          request = 'launch',
+          name = 'Debug Spring Boot Application',
+          mainClass = '',
+          projectName = '',
+          cwd = '${workspaceFolder}',
+          console = 'integratedTerminal',
+          args = '',
+          vmArgs = '-Dspring.profiles.active=dev',
+        },
+        {
+          type = 'java',
+          request = 'launch',
+          name = 'Debug Spring Boot (with Maven)',
+          mainClass = '',
+          projectName = '',
+          cwd = '${workspaceFolder}',
+          console = 'integratedTerminal',
+          mainClass = 'org.springframework.boot.loader.JarLauncher',
+          vmArgs = '-Dspring.profiles.active=dev -Dserver.port=8080',
+        },
+        {
+          type = 'java',
+          request = 'launch',
+          name = 'Debug Current File',
+          mainClass = '${file}',
+          projectName = '',
+          cwd = '${workspaceFolder}',
+          console = 'integratedTerminal',
+        },
+      }
+
+      -- Java test keybindings
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'java',
+        callback = function()
+          vim.keymap.set('n', '<leader>tc', function()
+            require('java').test.run_current_class()
+          end, { desc = 'Test: Run current class' })
+
+          vim.keymap.set('n', '<leader>tm', function()
+            require('java').test.run_current_method()
+          end, { desc = 'Test: Run current method' })
+
+          vim.keymap.set('n', '<leader>td', function()
+            require('java').test.debug_current_class()
+          end, { desc = 'Test: Debug current class' })
+
+          vim.keymap.set('n', '<leader>tr', function()
+            require('java').test.view_last_report()
+          end, { desc = 'Test: View last report' })
+        end,
       })
     end,
   },
@@ -1567,37 +1636,140 @@ vim.keymap.set('n', 'J', ':m .+1<CR>==', { desc = 'Move line down', silent = tru
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selection down', silent = true })
 require('comfy-line-numbers').setup()
 local builtin = require 'telescope.builtin'
+-- Put this near your other mappings
+local builtin = require 'telescope.builtin'
 
 vim.keymap.set('n', '<leader>ff', function()
-  -- Ask user for extension
-  local ext = vim.fn.input 'Extension (e.g. py, lua, sql): '
+  -- Ask user for extension(s) (comma-separated) or leave blank if not needed
+  local ext = vim.fn.input 'Extension(s) (e.g. py,lua,sql) [optional]: '
 
-  if ext == '' then
-    print 'No extension given, aborting.'
-    return
+  -- Ask for mode
+  -- f = find by extension
+  -- g = grep by extension
+  -- n = find by file NAME/pattern (new)
+  -- b = grep + limit by file NAME/pattern (bonus)
+  local choice = vim.fn.input 'Mode [f=files, g=grep, n=name, b=grep-by-name]: '
+
+  -- Helper: build a glob for multiple extensions: "py,lua" -> "*.{py,lua}"
+  local function ext_glob(s)
+    if s == nil or s == '' then
+      return nil
+    end
+    if s:find ',' then
+      return '*.{'
+        .. s:gsub('%s+', '') -- remove spaces
+        .. '}'
+    else
+      return '*.' .. s
+    end
   end
 
-  -- Ask whether to find files or grep
-  local choice = vim.fn.input 'Mode [f=files, g=grep]: '
+  local glob = ext_glob(ext)
 
   if choice == 'f' then
+    -- Find files by extension(s)
+    local cmd = { 'rg', '--files', '--hidden', '--glob', '!**/.git/**', '--glob', '!**/venv/**', '--glob', '!**/node_modules/**' }
+    if glob then
+      vim.list_extend(cmd, { '--glob', glob })
+    end
     builtin.find_files {
-      find_command = { 'rg', '--files', '--glob', '*.' .. ext },
+      prompt_title = glob and ('Files: ' .. glob) or 'Files (all)',
+      find_command = cmd,
     }
   elseif choice == 'g' then
+    -- Grep contents, limited by extension(s)
     builtin.live_grep {
-      glob_pattern = '*.' .. ext,
+      prompt_title = glob and ('Grep in ' .. glob) or 'Grep (all files)',
+      additional_args = function()
+        local args = { '--hidden' }
+        if glob then
+          table.insert(args, '-g')
+          table.insert(args, glob)
+        end
+        -- common ignores
+        vim.list_extend(args, { '--glob', '!**/.git/**', '--glob', '!**/venv/**', '--glob', '!**/node_modules/**' })
+        return args
+      end,
+    }
+  elseif choice == 'n' then
+    -- NEW: Find by FILE NAME (supports fuzzy or glob)
+    local name = vim.fn.input 'File name / glob (e.g. account_move.py or **/move*.py): '
+    if name == '' then
+      print 'No name given, aborting.'
+      return
+    end
+    local cmd = {
+      'rg',
+      '--files',
+      '--hidden',
+      '--glob',
+      '!**/.git/**',
+      '--glob',
+      '!**/venv/**',
+      '--glob',
+      '!**/node_modules/**',
+      '--glob',
+      name, -- constrain by file name pattern
+    }
+    -- If user also provided extensions, add them too (AND condition)
+    if glob then
+      vim.list_extend(cmd, { '--glob', glob })
+    end
+    builtin.find_files {
+      prompt_title = ('Files by name: %s'):format(name),
+      find_command = cmd,
+    }
+  elseif choice == 'b' then
+    -- BONUS: Grep contents but limit by FILE NAME pattern
+    local name = vim.fn.input 'File name / glob for grep (e.g. **/account_move.py): '
+    if name == '' then
+      print 'No name given, aborting.'
+      return
+    end
+    builtin.live_grep {
+      prompt_title = ('Grep in files: %s%s'):format(name, glob and (' & ' .. glob) or ''),
+      additional_args = function()
+        local args = { '--hidden', '-g', name, '--glob', '!**/.git/**', '--glob', '!**/venv/**', '--glob', '!**/node_modules/**' }
+        if glob then
+          vim.list_extend(args, { '-g', glob })
+        end
+        return args
+      end,
     }
   else
-    print 'Invalid choice, use f or g'
+    print 'Invalid choice, use f, g, n, or b'
   end
-end, { desc = 'Search by extension (files or grep)' })
+end, { desc = 'Search by extension or file name (files/grep)' })
+
+-- Your Telescope setup (kept minimal; add more as you like)
 require('telescope').setup {
   defaults = {
     layout_strategy = 'vertical',
     layout_config = {
-      -- preview_width = 1, -- make preview small
-      -- preview_cutoff = 100, -- hide preview if window < 100 cols
+      -- preview_width = 1, -- your previous tweaks here
+      -- preview_cutoff = 100,
+    },
+    -- sane defaults so you don’t have to repeat flags
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--hidden',
+      '--glob',
+      '!**/.git/**',
+      '--glob',
+      '!**/venv/**',
+      '--glob',
+      '!**/node_modules/**',
+    },
+  },
+  pickers = {
+    find_files = {
+      hidden = true,
     },
   },
 }
