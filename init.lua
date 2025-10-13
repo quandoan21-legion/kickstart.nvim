@@ -289,6 +289,43 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>gB', ':Gitsigns toggle_current_line_blame<CR>', { desc = 'Toggle git blame' })
     end,
   },
+  {
+
+    'nvim-java/nvim-java',
+    dependencies = {
+      'nvim-java/lua-async-await',
+      'nvim-java/nvim-java-core',
+      'nvim-java/nvim-java-test',
+      'nvim-java/nvim-java-dap',
+      'MunifTanjim/nui.nvim',
+      'neovim/nvim-lspconfig',
+      'mfussenegger/nvim-dap',
+      {
+        'williamboman/mason.nvim',
+        opts = {
+          registries = {
+            'github:nvim-java/mason-registry',
+            'github:mason-org/mason-registry',
+          },
+        },
+      },
+    },
+    config = function()
+      -- IMPORTANT: Must call setup BEFORE lspconfig
+      require('java').setup {
+        -- Add this to enable DAP properly
+        jdk = {
+          auto_install = true,
+        },
+        notifications = {
+          dap = true,
+        },
+      }
+
+      -- Setup jdtls AFTER java.setup()
+      require('lspconfig').jdtls.setup {}
+    end,
+  },
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -621,7 +658,7 @@ require('lazy').setup({
           '-c',
           'debian/odoo-e-invoice.conf',
           '-u',
-          'a1_einvoice_to_gov',
+          'a1_einvoice_to_gov, a1_reminder',
           -- '-d',
           -- 'tayoong-test',
           '--xmlrpc-port',
@@ -646,10 +683,12 @@ require('lazy').setup({
           '--http-port',
           '8090', -- prefer http-port on v14
           -- optional:
+          -- '-i',
+          -- 'base',
           -- '-d',
-          -- 'tayarlo-19-08',
-          '-u',
-          'a1_einvoice_to_gov,issue_consolidate_invoice',
+          -- 'paoyeang',
+          -- '-u',
+          -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
         },
         justMyCode = false,
         subProcess = true, -- follow child processes if Odoo spawns any
@@ -668,11 +707,10 @@ require('lazy').setup({
           '-c',
           '/home/juan/Desktop/odoo/debian/odoo-e-invoice.conf',
           '-u',
-          'a1_einvoice_to_gov,issue_consolidate_invoice',
-          -- '-i',
+          'a1_einvoice_to_gov,issue_consolidate_invoice,a1_reminder',
           -- 'base',
-          '-d',
-          'tayarlo-19-08',
+          -- '-d',
+          -- 'tayarlo_retored',
           '--xmlrpc-port',
           '8099',
         },
@@ -1260,7 +1298,7 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
-        xml = { 'lemmix' },
+        -- xml = { 'lemmix' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -1528,3 +1566,38 @@ vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selection up', silen
 vim.keymap.set('n', 'J', ':m .+1<CR>==', { desc = 'Move line down', silent = true })
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selection down', silent = true })
 require('comfy-line-numbers').setup()
+local builtin = require 'telescope.builtin'
+
+vim.keymap.set('n', '<leader>ff', function()
+  -- Ask user for extension
+  local ext = vim.fn.input 'Extension (e.g. py, lua, sql): '
+
+  if ext == '' then
+    print 'No extension given, aborting.'
+    return
+  end
+
+  -- Ask whether to find files or grep
+  local choice = vim.fn.input 'Mode [f=files, g=grep]: '
+
+  if choice == 'f' then
+    builtin.find_files {
+      find_command = { 'rg', '--files', '--glob', '*.' .. ext },
+    }
+  elseif choice == 'g' then
+    builtin.live_grep {
+      glob_pattern = '*.' .. ext,
+    }
+  else
+    print 'Invalid choice, use f or g'
+  end
+end, { desc = 'Search by extension (files or grep)' })
+require('telescope').setup {
+  defaults = {
+    layout_strategy = 'vertical',
+    layout_config = {
+      -- preview_width = 1, -- make preview small
+      -- preview_cutoff = 100, -- hide preview if window < 100 cols
+    },
+  },
+}
