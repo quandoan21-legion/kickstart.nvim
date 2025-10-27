@@ -632,7 +632,7 @@ require('lazy').setup({
       }
 
       -- ─────────────── PYTHON CONFIGURATION ───────────────────
-      require('dap-python').setup '/home/juan/.pyenv/shims/python'
+      -- require('dap-python').setup '/home/juan/.pyenv/shims/python'
 
       table.insert(require('dap').configurations.python, {
         type = 'python',
