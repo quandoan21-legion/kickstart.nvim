@@ -679,6 +679,33 @@ require('lazy').setup({
       table.insert(require('dap').configurations.python, {
         type = 'python',
         request = 'launch',
+        name = 'Odoo 13',
+        program = '/home/juan/Desktop/odoo13/odoo-bin',
+        pythonPath = '/home/juan/Desktop/odoo13/.venv/bin/python',
+        cwd = '/home/juan/Desktop/odoo13',
+        args = {
+          '-c',
+          '/home/juan/Desktop/odoo13/debian/odoo.conf', -- make sure this file exists
+          '--xmlrpc-port',
+          '8098', -- prefer http-port on v14
+          -- optional:
+          '-i',
+          'base',
+          -- '-d',
+          -- 'vital13',
+          -- '-u',
+          -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
+        },
+        justMyCode = false,
+        subProcess = true, -- follow child processes if Odoo spawns any
+        env = {
+          PYTHONPATH = '/Users/quandoan/Desktop/odoo13',
+        },
+      })
+
+      table.insert(require('dap').configurations.python, {
+        type = 'python',
+        request = 'launch',
         name = 'Odoo 14',
         program = '/home/juan/Desktop/odoo14/odoo-bin',
         pythonPath = '/home/juan/Desktop/odoo14/.venv/bin/python',
@@ -691,8 +718,8 @@ require('lazy').setup({
           -- optional:
           -- '-i',
           -- 'base',
-          -- '-d',
-          -- 'paoyeang',
+          '-d',
+          'paoyeang_live_dump',
           -- '-u',
           -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
         },
@@ -713,10 +740,11 @@ require('lazy').setup({
           '-c',
           '/home/juan/Desktop/odoo/debian/odoo-e-invoice.conf',
           '-u',
-          'a1_einvoice_to_gov,issue_consolidate_invoice,a1_reminder',
+          'a1_einvoice_to_gov,issue_consolidate_invoice,a1_reminder,enhance_statement_customer',
+          -- '-i',
           -- 'base',
-          -- '-d',
-          -- 'tayarlo_retored',
+          '-d',
+          'tayarlo_restored',
           '--xmlrpc-port',
           '8099',
         },
