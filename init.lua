@@ -634,6 +634,11 @@ require('lazy').setup({
       -- ─────────────── PYTHON CONFIGURATION ───────────────────
       -- require('dap-python').setup '/home/juan/.pyenv/shims/python'
 
+      dap.adapters.python = {
+        type = 'executable',
+        command = '/home/juan/Desktop/odoo13/.venv/bin/python', -- MUST have debugpy
+        args = { '-m', 'debugpy.adapter' },
+      }
       table.insert(require('dap').configurations.python, {
         type = 'python',
         request = 'launch',
@@ -675,8 +680,7 @@ require('lazy').setup({
           PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0',
         },
       })
-
-      table.insert(require('dap').configurations.python, {
+      table.insert(dap.configurations.python, {
         type = 'python',
         request = 'launch',
         name = 'Odoo 13',
@@ -685,25 +689,24 @@ require('lazy').setup({
         cwd = '/home/juan/Desktop/odoo13',
         args = {
           '-c',
-          '/home/juan/Desktop/odoo13/debian/odoo.conf', -- make sure this file exists
+          '/home/juan/Desktop/odoo13/debian/odoo.conf',
           '--xmlrpc-port',
-          '8098', -- prefer http-port on v14
-          -- optional:
-          '-i',
-          'base',
-          -- '-d',
-          -- 'vital13',
-          -- '-u',
-          -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
+          '8098',
+          '--log-level',
+          'debug',
+          -- '-i',
+          -- 'base',
+          -- '-d', 'vital13',
         },
         justMyCode = false,
-        subProcess = true, -- follow child processes if Odoo spawns any
+        subProcess = true,
         env = {
-          PYTHONPATH = '/Users/quandoan/Desktop/odoo13',
+          PYTHONPATH = '/home/juan/Desktop/odoo13',
         },
       })
 
-      table.insert(require('dap').configurations.python, {
+      -- Odoo 14 (⚠ fix the paths or it will just immediately die)
+      table.insert(dap.configurations.python, {
         type = 'python',
         request = 'launch',
         name = 'Odoo 14',
@@ -712,23 +715,47 @@ require('lazy').setup({
         cwd = '/home/juan/Desktop/odoo14',
         args = {
           '-c',
-          '/home/juan/Desktop/odoo14/debian/odoo.conf', -- make sure this file exists
+          '/home/juan/Desktop/odoo14/debian/odoo.conf',
           '--http-port',
-          '8090', -- prefer http-port on v14
-          -- optional:
-          -- '-i',
-          -- 'base',
+          '8090',
           '-d',
           'paoyeang_live_dump',
-          -- '-u',
-          -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
+          '-u',
+          'issue_consolidate_invoice, paoyeang_mail',
         },
         justMyCode = false,
-        subProcess = true, -- follow child processes if Odoo spawns any
+        subProcess = true,
         env = {
-          PYTHONPATH = '/Users/quandoan/Desktop/odoo14',
+          PYTHONPATH = '/home/juan/Desktop/odoo14', -- FIX THIS from /Users/quandoan
         },
       })
+
+      -- table.insert(require('dap').configurations.python, {
+      --   type = 'python',
+      --   request = 'launch',
+      --   name = 'Odoo 14',
+      --   program = '/home/juan/Desktop/odoo14/odoo-bin',
+      --   pythonPath = '/home/juan/Desktop/odoo14/.venv/bin/python',
+      --   cwd = '/home/juan/Desktop/odoo14',
+      --   args = {
+      --     '-c',
+      --     '/home/juan/Desktop/odoo14/debian/odoo.conf', -- make sure this file exists
+      --     '--http-port',
+      --     '8090', -- prefer http-port on v14
+      --     -- optional:
+      --     -- '-i',
+      --     -- 'base',
+      --     '-d',
+      --     'paoyeang_live_dump',
+      --     -- '-u',
+      --     -- 'a1_einvoice_to_gov,issue_consolidate_invoice',
+      --   },
+      --   justMyCode = false,
+      --   subProcess = true, -- follow child processes if Odoo spawns any
+      --   env = {
+      --     PYTHONPATH = '/Users/quandoan/Desktop/odoo14',
+      --   },
+      -- })
 
       table.insert(require('dap').configurations.python, {
         type = 'python',
