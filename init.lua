@@ -576,6 +576,32 @@ do
 
   -- Shortcut for searching your Neovim configuration files
   vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end, { desc = '[S]earch [N]eovim files' })
+
+  -- Search in current file's directory (like PyCharm's scope search)
+  vim.keymap.set('n', '<leader>sF', function()
+    local dir = vim.fn.expand '%:p:h'
+    builtin.live_grep {
+      search_dirs = { dir },
+      prompt_title = 'Grep in: ' .. vim.fn.fnamemodify(dir, ':~'),
+    }
+  end, { desc = '[S]earch in current [F]ile directory' })
+
+  -- Search in custom directory (like PyCharm "Find in Path")
+  vim.keymap.set('n', '<leader>sP', function()
+    vim.ui.input({
+      prompt = 'Search directory: ',
+      default = vim.fn.getcwd(),
+      completion = 'dir',
+    }, function(dir)
+      if dir and dir ~= '' then
+        local expanded = vim.fn.expand(dir)
+        builtin.live_grep {
+          search_dirs = { expanded },
+          prompt_title = 'Grep in: ' .. vim.fn.fnamemodify(expanded, ':~'),
+        }
+      end
+    end)
+  end, { desc = '[S]earch in custom [P]ath (Find in Path)' })
 end
 
 -- ============================================================
@@ -688,7 +714,6 @@ do
   local servers = {
     -- clangd = {},
     -- gopls = {},
-    -- pyright = {},
     -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -696,6 +721,9 @@ do
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
     -- ts_ls = {},
+
+    pyright = {}, -- Python LSP: go-to-def, hover, type checking
+    lemminx = {}, -- XML LSP: hover, go-to-def, formatting for Odoo views
 
     stylua = {}, -- Used to format Lua code
 
@@ -753,7 +781,10 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
-    -- You can add other tools here that you want Mason to install
+    -- Python tools
+    'black', -- Python formatter
+    'isort', -- Python import sorter
+    'ruff', -- Python linter (fast, replaces flake8/pylint)
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -790,16 +821,36 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
+      lua = { 'stylua' },
+      -- Run isort first to sort imports, then black for style
+      python = { 'isort', 'black' },
+      -- XML formatting via lemminx LSP (lsp_format = 'fallback' handles it)
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
     },
   }
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
+end
+
+-- ============================================================
+-- SECTION 6b: FLOATING TERMINAL
+-- toggleterm.nvim with float direction
+-- ============================================================
+do
+  vim.pack.add { gh 'akinsho/toggleterm.nvim' }
+  require('toggleterm').setup {
+    direction = 'float',
+    float_opts = {
+      border = 'curved',
+      width = function() return math.floor(vim.o.columns * 0.85) end,
+      height = function() return math.floor(vim.o.lines * 0.80) end,
+      winblend = 0,
+    },
+    start_in_insert = true,
+    persist_mode = true,
+  }
+
+  vim.keymap.set({ 'n', 't' }, '<C-t>', '<Cmd>ToggleTerm<CR>', { noremap = true, silent = true, desc = 'Toggle floating terminal' })
 end
 
 -- ============================================================
@@ -898,7 +949,7 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'python', 'query', 'vim', 'vimdoc', 'xml' }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -960,11 +1011,11 @@ do
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug'
+  require 'kickstart.plugins.debug' -- DAP debugger (Python, Go, C#)
   -- require 'kickstart.plugins.indent_line'
-  -- require 'kickstart.plugins.lint'
+  require 'kickstart.plugins.lint' -- Linting (ruff for Python, markdownlint)
   -- require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.neo-tree' -- File explorer sidebar
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`

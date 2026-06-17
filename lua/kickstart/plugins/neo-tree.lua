@@ -14,12 +14,25 @@ end
 vim.pack.add(plugins)
 
 vim.keymap.set('n', '\\', '<Cmd>Neotree reveal<CR>', { desc = 'NeoTree reveal', silent = true })
+vim.keymap.set('n', '<leader>e', '<Cmd>Neotree toggle<CR>', { desc = 'Toggle file [E]xplorer', silent = true })
 
 require('neo-tree').setup {
+  window = {
+    position = 'float',
+    popup = {
+      size = { height = '80%', width = '40%' },
+      position = '50%',
+    },
+    mappings = {
+      ['\\'] = 'close_window',
+      ['<Esc>'] = 'close_window',
+    },
+  },
   filesystem = {
     window = {
       mappings = {
         ['\\'] = 'close_window',
+        ['<Esc>'] = 'close_window',
       },
     },
   },
