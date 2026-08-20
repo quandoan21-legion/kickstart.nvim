@@ -1003,7 +1003,7 @@ do
   vim.pack.add { gh 'luk400/vim-lichess' }
 
   -- Cấu hình qua global variables (đây là vimscript plugin, không có setup())
-  vim.g.lichess_api_token = 'lip_cUzAEm2iCgrLrjf96ZLI'      -- điền Lichess token, xem hướng dẫn bên dưới
+  vim.g.lichess_api_token = os.getenv 'LICHESS_API_TOKEN'  -- set env var LICHESS_API_TOKEN thay vì hard-code token ở đây
   vim.g.python_cmd = 'python3'      -- đổi nếu Neovim dùng python khác
 
   -- Tham số ván đấu
