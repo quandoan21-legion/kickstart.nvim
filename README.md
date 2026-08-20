@@ -343,3 +343,106 @@ asdf reshim neovim
 </details>
 
 </details>
+
+## My Keybindings
+
+Leader key: `<Space>`. Local leader: `<Space>`.
+
+### General
+
+| Key | Mode | Action |
+| :-- | :--- | :----- |
+| `<Esc>` | n | Clear search highlight |
+| `<leader>q` | n | Open diagnostic quickfix list |
+| `<Esc><Esc>` | t | Exit terminal mode |
+| `<C-h>` / `<C-l>` / `<C-j>` / `<C-k>` | n | Move focus between windows |
+| `<leader>f` | n, v | Format buffer (conform.nvim) |
+| `<C-t>` | n, t | Toggle floating terminal (toggleterm.nvim) |
+
+### Search (Telescope)
+
+| Key | Action |
+| :-- | :----- |
+| `<leader>sh` | Search help tags |
+| `<leader>sk` | Search keymaps |
+| `<leader>sf` | Search files |
+| `<leader>ss` | Search Telescope builtins |
+| `<leader>sw` | Search current word (n, v) |
+| `<leader>sg` | Live grep |
+| `<leader>sd` | Search diagnostics |
+| `<leader>sr` | Resume last search |
+| `<leader>s.` | Search recent files |
+| `<leader>sc` | Search commands |
+| `<leader><leader>` | Find existing buffers |
+| `<leader>sn` | Search Neovim config files |
+| `<leader>sF` | Search in a chosen directory |
+| `<leader>sP` | Search plugin files |
+| `<leader>/` | Fuzzy search in current buffer |
+| `<leader>s/` | Live grep in open files |
+
+### LSP (buffer-local, on `LspAttach`)
+
+| Key | Action |
+| :-- | :----- |
+| `grr` | Goto references |
+| `gri` | Goto implementation |
+| `grd` | Goto definition |
+| `grt` | Goto type definition |
+| `gO` | Document symbols |
+| `gW` | Workspace symbols |
+| `<leader>th` | Toggle inlay hints |
+
+### Git (gitsigns.nvim, buffer-local)
+
+| Key | Mode | Action |
+| :-- | :--- | :----- |
+| `]c` / `[c` | n | Jump to next/previous git change |
+| `<leader>hs` | n, v | Stage hunk |
+| `<leader>hr` | n, v | Reset hunk |
+| `<leader>hS` | n | Stage buffer |
+| `<leader>hR` | n | Reset buffer |
+| `<leader>hp` | n | Preview hunk |
+| `<leader>hi` | n | Preview hunk inline |
+| `<leader>hb` | n | Blame line |
+| `<leader>hd` | n | Diff against index |
+| `<leader>hD` | n | Diff against last commit |
+| `<leader>hQ` | n | Hunk quickfix list (whole repo) |
+| `<leader>hq` | n | Hunk quickfix list (current file) |
+| `<leader>tb` | n | Toggle current line blame |
+| `<leader>tw` | n | Toggle word diff |
+| `ih` | o, x | Git hunk text object |
+
+### Neo-tree (file explorer)
+
+| Key | Action |
+| :-- | :----- |
+| `\` | Reveal current file in Neo-tree |
+| `<leader>e` | Toggle Neo-tree |
+| `\`, `<Esc>` | Close Neo-tree window (inside Neo-tree) |
+| `Y` | Copy absolute path of selected node |
+| `<C-y>` | Copy relative path of selected node |
+| `N` | Copy filename only of selected node |
+| `<leader>yy` | Pick path format (absolute/relative/filename) and copy |
+| `<leader>fs` | Find files scoped to the folder selected in Neo-tree |
+| `<leader>gs` | Live grep scoped to the folder selected in Neo-tree |
+
+### Debug (nvim-dap)
+
+| Key | Action |
+| :-- | :----- |
+| `<F5>` | Start/continue debug session (pick config) |
+| `<F10>` | Step into |
+| `<F2>` | Step over |
+| `<F3>` | Step out |
+| `<leader>b` | Toggle breakpoint |
+| `<leader>B` | Set conditional breakpoint |
+| `<leader>dl` | Re-run last debug session |
+| `<leader>cb` | Clear all breakpoints |
+| `<F7>` / `<leader>du` | Toggle DAP UI |
+
+### AI / Chess / Misc
+
+| Key | Action |
+| :-- | :----- |
+| `<leader>a` | Toggle Claude Code CLI (claude-code.nvim) |
+| `<leader>ch` | Find human game on Lichess (vim-lichess) |
