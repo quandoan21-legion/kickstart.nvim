@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -403,7 +403,6 @@ do
   -- [[ mini.nvim ]]
   --  A collection of various small independent plugins/modules
   vim.pack.add { gh 'nvim-mini/mini.nvim' }
-
   -- Better Around/Inside textobjects
   --
   -- Examples:
@@ -807,8 +806,8 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        lua = true,
+        python = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -996,6 +995,42 @@ do
     end,
   })
 end
+-- ============================================================
+-- SECTION 8c: VIM-LICHESS
+-- Play real games on Lichess (matchmaking) from Neovim
+-- ============================================================
+do
+  vim.pack.add { gh 'luk400/vim-lichess' }
+
+  -- Cấu hình qua global variables (đây là vimscript plugin, không có setup())
+  vim.g.lichess_api_token = 'lip_cUzAEm2iCgrLrjf96ZLI'      -- điền Lichess token, xem hướng dẫn bên dưới
+  vim.g.python_cmd = 'python3'      -- đổi nếu Neovim dùng python khác
+
+  -- Tham số ván đấu
+  vim.g.lichess_autoqueen = 1       -- tự phong Hậu
+  vim.g.lichess_time = 10           -- thời gian (phút), phải >= 8
+  vim.g.lichess_increment = 0
+  vim.g.lichess_rated = 0           -- 0 = ván không tính rating, 1 = có tính
+  vim.g.lichess_variant = 'standard'
+  vim.g.lichess_color = 'random'    -- 'white' | 'black' | 'random'
+  vim.g.lichess_rating_range = {}   -- để trống = mặc định
+
+  -- Keymap tiện dùng
+  vim.keymap.set('n', '<leader>ch', '<cmd>LichessFindGame<CR>', { desc = '[C]hess: find [H]uman game on Lichess' })
+end
+-- ============================================================
+-- SECTION 8d: CLAUDE-CODE.NVIM (WRAPS `claude` CLI, NO API KEY)
+-- Requires `claude` CLI installed and logged in (claude.ai subscription)
+-- ============================================================
+do
+  vim.pack.add {
+    gh 'greggh/claude-code.nvim',
+  }
+
+  require('claude-code').setup()
+
+  vim.keymap.set('n', '<leader>a', '<cmd>ClaudeCode<CR>', { desc = '[A]I: Claude Code CLI toggle' })
+end
 
 -- ============================================================
 -- SECTION 9: OPTIONAL EXAMPLES / NEXT STEPS
@@ -1016,6 +1051,7 @@ do
   require 'kickstart.plugins.lint' -- Linting (ruff for Python, markdownlint)
   -- require 'kickstart.plugins.autopairs'
   require 'kickstart.plugins.neo-tree' -- File explorer sidebar
+
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
