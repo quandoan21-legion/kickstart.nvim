@@ -33,6 +33,14 @@ require('neo-tree').setup {
       mappings = {
         ['\\'] = 'close_window',
         ['<Esc>'] = 'close_window',
+        ['Y'] = 'copy_path_to_clipboard', -- absolute path
+        ['<C-y>'] = function(state)
+          local node = state.tree:get_node()
+          local path = vim.fn.fnamemodify(node.path, ':.')
+          vim.fn.setreg('+', path)
+          vim.fn.setreg('"', path)
+          vim.notify('Copied relative path: ' .. path)
+        end,
       },
     },
   },

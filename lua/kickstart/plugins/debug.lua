@@ -124,11 +124,12 @@ table.insert(dap_python_configs, {
   type = 'python',
   request = 'launch',
   name = 'Odoo 19 base',
-  program = '/Users/quandoan/Desktop/odoo19/odoo-bin',
-  pythonPath = '/Users/quandoan/Desktop/odoo19/.venv1/bin/python',
-  args = { '-c', 'debian/odoo.conf', '-u', 'a1_purchase_custom' },
+  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
+  args = { '-c', '/Users/doanquan/Desktop/odoo-19.0/odoo.conf', '-u', 'a1_purchase_custom' },
   justMyCode = false,
-  env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo19' },
+  cwd = '/Users/doanquan/Desktop/odoo-19.0',
+  env = { PYTHONUNBUFFERED = '1' },
 })
 
 table.insert(dap_python_configs, {
@@ -161,11 +162,47 @@ table.insert(dap_python_configs, {
   type = 'python',
   request = 'launch',
   name = 'Odoo 19 HMV-PACKAGE',
-  program = '/Users/quandoan/Desktop/odoo19/odoo-bin',
-  pythonPath = '/Users/quandoan/Desktop/odoo19/.venv1/bin/python',
-  args = { '-c', '/Users/quandoan/Desktop/HMV-PACKAGE/odoo.conf' },
+  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
+  args = { '-c', '/Users/doanquan/Desktop/HMV-PACKAGE/odoo.conf' },
   justMyCode = false,
-  env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo19' },
+  cwd = '/Users/doanquan/Desktop/odoo-19.0',
+  env = { PYTHONUNBUFFERED = '1' },
+})
+
+table.insert(dap_python_configs, {
+  type = 'python',
+  request = 'launch',
+  name = 'Odoo 19',
+  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
+  args = {
+    '-c', '/Users/doanquan/Desktop/odoo-19.0/odoo.conf',
+    '-u', 'a1_einvoice_to_gov',
+    '-d', 'db_test_20260703_2026-07-13_08-38-41',
+  },
+  justMyCode = false,
+  cwd = '/Users/doanquan/Desktop/odoo-19.0',
+  env = { PYTHONUNBUFFERED = '1' },
+})
+
+table.insert(dap_python_configs, {
+  type = 'python',
+  request = 'launch',
+  name = 'odoo-bin-HMV',
+  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
+  args = {
+    '-c', '/Users/doanquan/Desktop/odoo-19.0/debian/odoo_hmv.conf',
+    '-d', 'hmv-package_2026-08-19_09-53-17',
+    '-u', 'hmv_truck_body_type,hmv_sale_territory',
+    '--i18n-overwrite',
+    '--load-language=vi_VN',
+    '--http-port=8099',
+  },
+  justMyCode = false,
+  cwd = '/Users/doanquan/Desktop/odoo-19.0',
+  env = { PYTHONUNBUFFERED = '1' },
 })
 
 require('dap').configurations.python = dap_python_configs
