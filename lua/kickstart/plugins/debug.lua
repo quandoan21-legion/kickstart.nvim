@@ -17,8 +17,13 @@ vim.pack.add {
 }
 
 -- Basic debugging keymaps, feel free to change to your liking!
-vim.keymap.set('n', '<F5>', function() require('dap').continue() end, { desc = 'Debug: Start/Continue' })
-vim.keymap.set('n', '<F10>', function() require('dap').step_into() end, { desc = 'Debug: Step Into' })
+-- Also bound to <XF86AudioPrev>: this external keyboard's F7 key sends that
+-- media keysym instead of a real F7 (confirmed via xev), since the F-row is
+-- shared with media keys and doesn't need Fn held for this one.
+for _, key in ipairs { '<F7>', '<XF86AudioPrev>' } do
+  vim.keymap.set('n', key, function() require('dap').continue() end, { desc = 'Debug: Start/Continue' })
+end
+vim.keymap.set('n', '<F8>', function() require('dap').step_into() end, { desc = 'Debug: Step Into' })
 vim.keymap.set('n', '<F2>', function() require('dap').step_over() end, { desc = 'Debug: Step Over' })
 vim.keymap.set('n', '<F3>', function() require('dap').step_out() end, { desc = 'Debug: Step Out' })
 vim.keymap.set('n', '<leader>b', function() require('dap').toggle_breakpoint() end, { desc = 'Debug: Toggle Breakpoint' })
@@ -29,7 +34,6 @@ vim.keymap.set('n', '<leader>cb', function()
   vim.notify('Cleared all breakpoints', vim.log.levels.INFO)
 end, { desc = 'Debug: [C]lear all [B]reakpoints' })
 -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-vim.keymap.set('n', '<F7>', function() require('dapui').toggle() end, { desc = 'Debug: Toggle DAP UI' })
 vim.keymap.set('n', '<leader>du', function() require('dapui').toggle() end, { desc = 'Debug: Toggle [D]AP [U]I' })
 
 local dap = require 'dap'
@@ -123,12 +127,20 @@ table.insert(dap_python_configs, {
 table.insert(dap_python_configs, {
   type = 'python',
   request = 'launch',
-  name = 'Odoo 19 base',
-  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
-  args = { '-c', '/Users/doanquan/Desktop/odoo-19.0/odoo.conf', '-u', 'a1_purchase_custom' },
+  name = 'Odoo 19 (Desktop)',
+  program = '/home/quandoan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/home/quandoan/Desktop/odoo-19.0/venv/bin/python',
+  cwd = '/home/quandoan/Desktop/odoo-19.0',
+  args = {
+    '--addons-path=/home/quandoan/Desktop/odoo-19.0/addons',
+    '--db_host=localhost',
+    '--db_port=5432',
+    '--db_user=odoo',
+    '--db_password=odoo',
+    '-d', 'odoo19',
+    '--http-port=8069',
+  },
   justMyCode = false,
-  cwd = '/Users/doanquan/Desktop/odoo-19.0',
   env = { PYTHONUNBUFFERED = '1' },
 })
 
@@ -158,50 +170,32 @@ table.insert(dap_python_configs, {
   env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0' },
 })
 
+-- HMV-PACKAGE has no engine of its own (per its README, the only documented
+-- run path is Docker/build.sh) -- it's an addons-only repo, so local
+-- debugging reuses the odoo-19.0 checkout as the engine and just widens
+-- addons-path to include HMV-PACKAGE's addon trees.
 table.insert(dap_python_configs, {
   type = 'python',
   request = 'launch',
-  name = 'Odoo 19 HMV-PACKAGE',
-  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
-  args = { '-c', '/Users/doanquan/Desktop/HMV-PACKAGE/odoo.conf' },
-  justMyCode = false,
-  cwd = '/Users/doanquan/Desktop/odoo-19.0',
-  env = { PYTHONUNBUFFERED = '1' },
-})
-
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'Odoo 19',
-  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
+  name = 'HMV-PACKAGE (Desktop)',
+  program = '/home/quandoan/Desktop/odoo-19.0/odoo-bin',
+  pythonPath = '/home/quandoan/Desktop/odoo-19.0/venv/bin/python',
+  cwd = '/home/quandoan/Desktop/HMV-PACKAGE',
   args = {
-    '-c', '/Users/doanquan/Desktop/odoo-19.0/odoo.conf',
-    '-u', 'a1_einvoice_to_gov',
-    '-d', 'db_test_20260703_2026-07-13_08-38-41',
+    '--addons-path=/home/quandoan/Desktop/odoo-19.0/addons,'
+      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/enterprise,'
+      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/community,'
+      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/a1_packages,'
+      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/project_custom',
+    '--db_host=localhost',
+    '--db_port=5432',
+    '--db_user=odoo',
+    '--db_password=odoo',
+    '-d', 'hmv-package',
+    '-u', 'hmv_sale_vehicle_planning',
+    '--http-port=8069',
   },
   justMyCode = false,
-  cwd = '/Users/doanquan/Desktop/odoo-19.0',
-  env = { PYTHONUNBUFFERED = '1' },
-})
-
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'odoo-bin-HMV',
-  program = '/Users/doanquan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/Users/doanquan/Desktop/odoo-19.0/venv/bin/python',
-  args = {
-    '-c', '/Users/doanquan/Desktop/odoo-19.0/debian/odoo_hmv.conf',
-    '-d', 'hmv-package_2026-08-19_09-53-17',
-    '-u', 'hmv_truck_body_type,hmv_sale_territory',
-    '--i18n-overwrite',
-    '--load-language=vi_VN',
-    '--http-port=8099',
-  },
-  justMyCode = false,
-  cwd = '/Users/doanquan/Desktop/odoo-19.0',
   env = { PYTHONUNBUFFERED = '1' },
 })
 

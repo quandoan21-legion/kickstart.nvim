@@ -108,7 +108,34 @@ require('neo-tree').setup {
       mappings = {
         ['\\'] = 'close_window',
         ['<Esc>'] = 'close_window',
-        ['Y'] = 'copy_path_to_clipboard', -- absolute path
+        -- Default '<cr>' toggles directories open/closed. If Enter is held down,
+        -- the terminal's key-repeat sends multiple <CR> events, which toggles the
+        -- folder shut again on release. Guard against that by ignoring a second
+        -- toggle on the same node that arrives too soon after the first (i.e.
+        -- while the key is still physically held) -- a deliberate second press,
+        -- which comes after releasing and pressing again, is always slower than
+        -- this and still collapses the folder normally.
+        ['<CR>'] = (function()
+          local last_toggle_ms = {}
+          local REPEAT_GUARD_MS = 300
+          return function(state)
+            local node = state.tree:get_node()
+            if node.type == 'directory' then
+              local id = node:get_id()
+              local now = vim.loop.now()
+              if node:is_expanded() and last_toggle_ms[id] and (now - last_toggle_ms[id]) < REPEAT_GUARD_MS then return end
+              last_toggle_ms[id] = now
+            end
+            require('neo-tree.sources.filesystem.commands').open(state)
+          end
+        end)(),
+        ['Y'] = function(state) -- absolute path
+          local node = state.tree:get_node()
+          local path = node.path
+          vim.fn.setreg('+', path)
+          vim.fn.setreg('"', path)
+          vim.notify('Copied absolute path: ' .. path)
+        end,
         ['<C-y>'] = function(state)
           local node = state.tree:get_node()
           local path = vim.fn.fnamemodify(node.path, ':.')
