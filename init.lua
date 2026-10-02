@@ -85,8 +85,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- ============================================================
--- SECTION 1: FOUNDATION
--- Core Neovim settings, leaders, options, basic keymaps, basic autocmds
+-- SECTION 1: OPTIONS
+-- Core Neovim settings, leaders, options
 -- ============================================================
 do
   -- Enable faster startup by caching compiled Lua modules
@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  vim.o.relativenumber = true
+  -- vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -171,7 +171,13 @@ do
   -- instead raise a dialog asking if you wish to save the current file(s)
   -- See `:help 'confirm'`
   vim.o.confirm = true
+end
 
+-- ============================================================
+-- SECTION 2: KEYMAPS & AUTOCMDS
+-- basic keymaps, basic autocmds
+-- ============================================================
+do
   -- [[ Basic Keymaps ]]
   --  See `:help vim.keymap.set()`
 
@@ -248,7 +254,7 @@ do
 end
 
 -- ============================================================
--- SECTION 2: PLUGIN MANAGER INTRO
+-- SECTION 3: PLUGIN MANAGER INTRO
 -- vim.pack intro, build hooks
 -- ============================================================
 do
@@ -320,7 +326,7 @@ end
 local function gh(repo) return 'https://github.com/' .. repo end
 
 -- ============================================================
--- SECTION 3: UI / CORE UX PLUGINS
+-- SECTION 4: UI / CORE UX PLUGINS
 -- guess-indent, gitsigns, which-key, colorscheme, todo-comments, mini modules
 -- ============================================================
 do
@@ -340,19 +346,13 @@ do
   vim.pack.add { gh 'NMAC427/guess-indent.nvim' }
   require('guess-indent').setup {}
 
-  -- Because lua is a real programming language, you can also have some logic to your installation -
-  -- like only installing a plugin if a condition is met.
-  --
-  -- Here we only install `nvim-web-devicons` (which adds pretty icons) if we have a Nerd Font,
-  -- since otherwise the icons won't display properly.
-  if vim.g.have_nerd_font then vim.pack.add { gh 'nvim-tree/nvim-web-devicons' } end
-
   -- Here is a more advanced configuration example that passes options to `gitsigns.nvim`
   --
   -- See `:help gitsigns` to understand what each configuration key does.
   -- Adds git related signs to the gutter, as well as utilities for managing changes
   vim.pack.add { gh 'lewis6991/gitsigns.nvim' }
-  require('gitsigns').setup {
+  local gitsigns = require 'gitsigns'
+  gitsigns.setup {
     signs = {
       add = { text = '+' }, ---@diagnostic disable-line: missing-fields
       change = { text = '~' }, ---@diagnostic disable-line: missing-fields
@@ -360,6 +360,46 @@ do
       topdelete = { text = '‾' }, ---@diagnostic disable-line: missing-fields
       changedelete = { text = '~' }, ---@diagnostic disable-line: missing-fields
     },
+    -- gitsigns.nvim's recommended keymaps:
+    on_attach = function(bufnr)
+      -- Navigation
+      vim.keymap.set('n', ']c', function()
+        if vim.wo.diff then
+          vim.cmd.normal { ']c', bang = true }
+        else
+          gitsigns.nav_hunk 'next'
+        end
+      end, { desc = 'Jump to next git [c]hange', buf = bufnr })
+
+      vim.keymap.set('n', '[c', function()
+        if vim.wo.diff then
+          vim.cmd.normal { '[c', bang = true }
+        else
+          gitsigns.nav_hunk 'prev'
+        end
+      end, { desc = 'Jump to previous git [c]hange', buf = bufnr })
+
+      -- Visual mode actions
+      vim.keymap.set('v', '<leader>hs', function() gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git [s]tage hunk', buf = bufnr })
+      vim.keymap.set('v', '<leader>hr', function() gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git [r]eset hunk', buf = bufnr })
+      -- Normal mode actions
+      vim.keymap.set('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'git [s]tage hunk', buf = bufnr })
+      vim.keymap.set('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'git [r]eset hunk', buf = bufnr })
+      vim.keymap.set('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'git [S]tage buffer', buf = bufnr })
+      vim.keymap.set('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'git [R]eset buffer', buf = bufnr })
+      vim.keymap.set('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'git [p]review hunk', buf = bufnr })
+      vim.keymap.set('n', '<leader>hi', gitsigns.preview_hunk_inline, { desc = 'git preview hunk [i]nline', buf = bufnr })
+      vim.keymap.set('n', '<leader>hb', function() gitsigns.blame_line { full = true } end, { desc = 'git [b]lame line', buf = bufnr })
+      vim.keymap.set('n', '<leader>hd', gitsigns.diffthis, { desc = 'git [d]iff against index', buf = bufnr })
+      vim.keymap.set('n', '<leader>hD', function() gitsigns.diffthis '@' end, { desc = 'git [D]iff against last commit', buf = bufnr })
+      vim.keymap.set('n', '<leader>hQ', function() gitsigns.setqflist 'all' end, { desc = 'git hunk [Q]uickfix list (all files in repo)', buf = bufnr })
+      vim.keymap.set('n', '<leader>hq', gitsigns.setqflist, { desc = 'git hunk [q]uickfix list (all changes in this file)', buf = bufnr })
+      -- Toggles
+      vim.keymap.set('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = '[T]oggle git show [b]lame line', buf = bufnr })
+      vim.keymap.set('n', '<leader>tw', gitsigns.toggle_word_diff, { desc = '[T]oggle git intra-line [w]ord diff', buf = bufnr })
+      -- Text object
+      vim.keymap.set({ 'o', 'x' }, 'ih', gitsigns.select_hunk, { desc = 'text object [i]nside [h]unk', buf = bufnr })
+    end,
   }
 
   -- Useful plugin to show you pending keybinds.
@@ -373,6 +413,7 @@ do
       { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
+      { '<leader>g', group = '[G]it' },
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
   }
@@ -403,6 +444,14 @@ do
   -- [[ mini.nvim ]]
   --  A collection of various small independent plugins/modules
   vim.pack.add { gh 'nvim-mini/mini.nvim' }
+
+  -- If a nerd font is available, load the icons module for pretty icons in various plugins.
+  if vim.g.have_nerd_font then
+    require('mini.icons').setup()
+    -- Used for backwards compatibility with plugins that require `nvim-web-devicons` (e.g. telescope.nvim)
+    MiniIcons.mock_nvim_web_devicons()
+  end
+
   -- Better Around/Inside textobjects
   --
   -- Examples:
@@ -443,7 +492,7 @@ do
 end
 
 -- ============================================================
--- SECTION 4: SEARCH & NAVIGATION
+-- SECTION 5: SEARCH & NAVIGATION
 -- Telescope setup, keymaps, LSP picker mappings
 -- ============================================================
 do
@@ -476,6 +525,7 @@ do
     gh 'nvim-lua/plenary.nvim',
     gh 'nvim-telescope/telescope.nvim',
     gh 'nvim-telescope/telescope-ui-select.nvim',
+    gh 'nvim-telescope/telescope-live-grep-args.nvim',
   }
   if vim.fn.executable 'make' == 1 then table.insert(telescope_plugins, gh 'nvim-telescope/telescope-fzf-native.nvim') end
 
@@ -501,6 +551,7 @@ do
   -- Enable Telescope extensions if they are installed
   pcall(require('telescope').load_extension, 'fzf')
   pcall(require('telescope').load_extension, 'ui-select')
+  pcall(require('telescope').load_extension, 'live_grep_args')
 
   -- See `:help telescope.builtin`
   local builtin = require 'telescope.builtin'
@@ -510,6 +561,12 @@ do
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
   vim.keymap.set({ 'n', 'v' }, '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
   vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+  vim.keymap.set(
+    'n',
+    '<leader>sa',
+    function() require('telescope').extensions.live_grep_args.live_grep_args() end,
+    { desc = '[S]earch by grep with [A]rgs (regex, -g globs, etc.)' }
+  )
   vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
   vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
   vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -574,37 +631,11 @@ do
   )
 
   -- Shortcut for searching your Neovim configuration files
-  vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end, { desc = '[S]earch [N]eovim files' })
-
-  -- Search in current file's directory (like PyCharm's scope search)
-  vim.keymap.set('n', '<leader>sF', function()
-    local dir = vim.fn.expand '%:p:h'
-    builtin.live_grep {
-      search_dirs = { dir },
-      prompt_title = 'Grep in: ' .. vim.fn.fnamemodify(dir, ':~'),
-    }
-  end, { desc = '[S]earch in current [F]ile directory' })
-
-  -- Search in custom directory (like PyCharm "Find in Path")
-  vim.keymap.set('n', '<leader>sP', function()
-    vim.ui.input({
-      prompt = 'Search directory: ',
-      default = vim.fn.getcwd(),
-      completion = 'dir',
-    }, function(dir)
-      if dir and dir ~= '' then
-        local expanded = vim.fn.expand(dir)
-        builtin.live_grep {
-          search_dirs = { expanded },
-          prompt_title = 'Grep in: ' .. vim.fn.fnamemodify(expanded, ':~'),
-        }
-      end
-    end)
-  end, { desc = '[S]earch in custom [P]ath (Find in Path)' })
+  vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config', follow = true } end, { desc = '[S]earch [N]eovim files' })
 end
 
 -- ============================================================
--- SECTION 5: LSP
+-- SECTION 6: LSP
 -- LSP keymaps, server configuration, Mason tools installations
 -- ============================================================
 do
@@ -713,16 +744,52 @@ do
   local servers = {
     -- clangd = {},
     -- gopls = {},
-    -- rust_analyzer = {},
-    --
-    -- Some languages (like typescript) have entire language plugins that can be useful:
-    --    https://github.com/pmizio/typescript-tools.nvim
-    --
-    -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
+    -- tsc = {},
 
-    pyright = {}, -- Python LSP: go-to-def, hover, type checking
-    lemminx = {}, -- XML LSP: hover, go-to-def, formatting for Odoo views
+    -- Python: basedpyright for type-checking/completion/go-to-def,
+    -- ruff for fast linting + import sorting (see also conform.nvim for formatting).
+    basedpyright = {
+      settings = {
+        basedpyright = {
+          analysis = {
+            autoSearchPaths = true,
+            useLibraryCodeForTypes = true,
+            diagnosticMode = 'openFilesOnly',
+            -- `odoo` isn't pip-installed; odoo-bin just adds the repo root to
+            -- sys.path at runtime, so do the same here or every `import odoo`
+            -- shows as unresolved.
+            extraPaths = { vim.fn.expand '~/Desktop/odoo-19.0' },
+            -- Odoo's ORM leans entirely on dynamic metaclasses (fields
+            -- descriptors, recordset magic), which defeats strict type
+            -- inference. These rules fire constantly on completely normal
+            -- Odoo code, so drop to basic and silence the noisiest ones.
+            typeCheckingMode = 'basic',
+            diagnosticSeverityOverrides = {
+              reportUnannotatedClassAttribute = 'none',
+              reportUnknownVariableType = 'none',
+              reportUnknownMemberType = 'none',
+              reportUnknownArgumentType = 'none',
+              reportUnknownParameterType = 'none',
+              reportMissingTypeArgument = 'none',
+            },
+          },
+        },
+        python = {
+          -- Point at the Odoo 19 venv so imports/stubs resolve against it.
+          pythonPath = vim.fn.expand '~/Desktop/odoo-19.0/.venv/bin/python',
+        },
+      },
+    },
+    ruff = {},
+
+    -- Odoo views/qweb templates are XML; lemminx gives diagnostics/completion for them.
+    lemminx = {},
+    --
+    -- Some languages (like rust) have entire language plugins that can be useful:
+    --    https://github.com/mrcjkb/rustaceanvim
+    --
+    -- But for many setups, the LSP (`rust_analyzer`) will work just fine
+    -- rust_analyzer = {},
 
     stylua = {}, -- Used to format Lua code
 
@@ -736,7 +803,8 @@ do
           if path ~= vim.fn.stdpath 'config' and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc')) then return end
         end
 
-        client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+        local current_settings = client.config.settings --[[@as lspconfig.settings.lua_ls]]
+        client.config.settings.Lua = vim.tbl_deep_extend('force', current_settings.Lua, {
           runtime = {
             version = 'LuaJIT',
             path = { 'lua/?.lua', 'lua/?/init.lua' },
@@ -745,10 +813,7 @@ do
             checkThirdParty = false,
             -- NOTE: this is a lot slower and will cause issues when working on your own configuration.
             --  See https://github.com/neovim/nvim-lspconfig/issues/3189
-            library = vim.tbl_extend('force', vim.api.nvim_get_runtime_file('', true), {
-              '${3rd}/luv/library',
-              '${3rd}/busted/library',
-            }),
+            library = vim.api.nvim_get_runtime_file('', true),
           },
         })
       end,
@@ -771,6 +836,11 @@ do
   -- Automatically install LSPs and related tools to stdpath for Neovim
   require('mason').setup {}
 
+  -- Translates between nvim-lspconfig server names and mason.nvim package names (e.g. lua_ls <-> lua-language-server)
+  require('mason-lspconfig').setup {
+    automatic_enable = false, -- Change this to true if you want to automatically enable servers that are installed manually (e.g. via :Mason / :MasonInstall)
+  }
+
   -- Ensure the servers and tools above are installed
   --
   -- To check the current status of installed tools and/or manually install
@@ -780,10 +850,7 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
-    -- Python tools
-    'black', -- Python formatter
-    'isort', -- Python import sorter
-    'ruff', -- Python linter (fast, replaces flake8/pylint)
+    -- You can add other tools here that you want Mason to install
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -795,7 +862,7 @@ do
 end
 
 -- ============================================================
--- SECTION 6: FORMATTING
+-- SECTION 7: FORMATTING
 -- conform.nvim setup and keymap
 -- ============================================================
 do
@@ -806,8 +873,8 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        lua = true,
-        python = true,
+        -- lua = true,
+        -- python = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -820,10 +887,19 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      lua = { 'stylua' },
-      -- Run isort first to sort imports, then black for style
-      python = { 'isort', 'black' },
-      -- XML formatting via lemminx LSP (lsp_format = 'fallback' handles it)
+      -- rust = { 'rustfmt' },
+      -- Conform can also run multiple formatters sequentially
+      -- `__manifest__.py` must stay black-formatted (CI runs `black --check`
+      -- on it, e.g. TM_BC6_ODOO_MADPG2601DPG/dp-review.sh); everything else
+      -- uses ruff.
+      python = function(bufnr)
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+        if vim.fs.basename(filename) == '__manifest__.py' then return { 'black' } end
+        return { 'ruff_fix', 'ruff_format' }
+      end,
+      xml = { 'xmllint' },
+      --
+      -- You can use 'stop_after_first' to run the first available formatter from the list
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
     },
   }
@@ -832,28 +908,7 @@ do
 end
 
 -- ============================================================
--- SECTION 6b: FLOATING TERMINAL
--- toggleterm.nvim with float direction
--- ============================================================
-do
-  vim.pack.add { gh 'akinsho/toggleterm.nvim' }
-  require('toggleterm').setup {
-    direction = 'float',
-    float_opts = {
-      border = 'curved',
-      width = function() return math.floor(vim.o.columns * 0.85) end,
-      height = function() return math.floor(vim.o.lines * 0.80) end,
-      winblend = 0,
-    },
-    start_in_insert = true,
-    persist_mode = true,
-  }
-
-  vim.keymap.set({ 'n', 't' }, '<C-t>', '<Cmd>ToggleTerm<CR>', { noremap = true, silent = true, desc = 'Toggle floating terminal' })
-end
-
--- ============================================================
--- SECTION 7: AUTOCOMPLETE & SNIPPETS
+-- SECTION 8: AUTOCOMPLETE & SNIPPETS
 -- blink.cmp and luasnip setup
 -- ============================================================
 do
@@ -935,7 +990,7 @@ do
 end
 
 -- ============================================================
--- SECTION 8: TREESITTER
+-- SECTION 9: TREESITTER
 -- Parser installation, syntax highlighting, folds, indentation
 -- ============================================================
 do
@@ -995,45 +1050,9 @@ do
     end,
   })
 end
--- ============================================================
--- SECTION 8c: VIM-LICHESS
--- Play real games on Lichess (matchmaking) from Neovim
--- ============================================================
-do
-  vim.pack.add { gh 'luk400/vim-lichess' }
-
-  -- Cấu hình qua global variables (đây là vimscript plugin, không có setup())
-  vim.g.lichess_api_token = os.getenv 'LICHESS_API_TOKEN'  -- set env var LICHESS_API_TOKEN thay vì hard-code token ở đây
-  vim.g.python_cmd = 'python3'      -- đổi nếu Neovim dùng python khác
-
-  -- Tham số ván đấu
-  vim.g.lichess_autoqueen = 1       -- tự phong Hậu
-  vim.g.lichess_time = 10           -- thời gian (phút), phải >= 8
-  vim.g.lichess_increment = 0
-  vim.g.lichess_rated = 0           -- 0 = ván không tính rating, 1 = có tính
-  vim.g.lichess_variant = 'standard'
-  vim.g.lichess_color = 'random'    -- 'white' | 'black' | 'random'
-  vim.g.lichess_rating_range = {}   -- để trống = mặc định
-
-  -- Keymap tiện dùng
-  vim.keymap.set('n', '<leader>ch', '<cmd>LichessFindGame<CR>', { desc = '[C]hess: find [H]uman game on Lichess' })
-end
--- ============================================================
--- SECTION 8d: CLAUDE-CODE.NVIM (WRAPS `claude` CLI, NO API KEY)
--- Requires `claude` CLI installed and logged in (claude.ai subscription)
--- ============================================================
-do
-  vim.pack.add {
-    gh 'greggh/claude-code.nvim',
-  }
-
-  require('claude-code').setup()
-
-  vim.keymap.set('n', '<leader>a', '<cmd>ClaudeCode<CR>', { desc = '[A]I: Claude Code CLI toggle' })
-end
 
 -- ============================================================
--- SECTION 9: OPTIONAL EXAMPLES / NEXT STEPS
+-- SECTION 10: OPTIONAL EXAMPLES / NEXT STEPS
 -- kickstart.plugins.* examples
 -- ============================================================
 do
@@ -1046,18 +1065,32 @@ do
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  require 'kickstart.plugins.debug' -- DAP debugger (Python, Go, C#)
+  require 'kickstart.plugins.debug'
   -- require 'kickstart.plugins.indent_line'
-  require 'kickstart.plugins.lint' -- Linting (ruff for Python, markdownlint)
+  require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
-  require 'kickstart.plugins.neo-tree' -- File explorer sidebar
+  require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.dadbod'
+  require 'kickstart.plugins.toggleterm'
+  require 'kickstart.plugins.venv-selector'
+  require 'kickstart.plugins.odoo-snippets'
+  require 'kickstart.plugins.treesitter-textobjects'
+  require 'kickstart.plugins.git-conflict'
+  require 'kickstart.plugins.diffview'
 
-  -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
-
-  -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+  -- NOTE: You can add your own plugins, configuration, etc. in `lua/custom/plugins/*.lua`.
   --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
+  -- For independent modules, uncomment the convenience loader:
   -- require 'custom.plugins'
+  --
+  -- `custom.plugins` automatically loads files from that directory, but their
+  -- order is unspecified. If plugins depend on each other, keep them in the same
+  -- file and put their `vim.pack.add()` and `setup()` calls in the required order.
+  --
+  -- If separate modules need a specific order, require them explicitly instead:
+  -- require 'custom.plugins.colorscheme'
+  -- require 'custom.plugins.ui'
+  -- require 'custom.plugins.git'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`

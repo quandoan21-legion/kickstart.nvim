@@ -61,23 +61,32 @@ Neovim's configurations are located under the following paths, depending on your
 
 #### Recommended Step
 
-[Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repo
-so that you have your own copy that you can modify, then install by cloning the
-fork to your machine using one of the commands below, depending on your OS.
+Create your own copy of this repo using GitHub's
+["Use this template"](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
+button so that you have your own copy that you can modify, then install by
+cloning your new repo to your machine using one of the commands below,
+depending on your OS.
+
+Alternatively, you can [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+this repo if you prefer an easy upstream sync path (e.g., keeping your config
+on a separate branch and fast-forwarding `master` from upstream). See the
+[discussion in #1740](https://github.com/nvim-lua/kickstart.nvim/issues/1740)
+for the tradeoffs between the two approaches.
 
 > [!NOTE]
-> Your fork's URL will be something like this:
+> Your repo's URL will be something like this:
 > `https://github.com/<your_github_username>/kickstart.nvim.git`
 
-You likely want to remove `nvim-pack-lock.json` from your fork's `.gitignore`
+You likely want to remove `nvim-pack-lock.json` from your repo's `.gitignore`
 file too - it's ignored in the kickstart repo to make maintenance easier, but
 it's recommended to track it in version control (see `:help vim.pack-lockfile`).
 
 #### Clone kickstart.nvim
 
 > [!NOTE]
-> If following the recommended step above (i.e., forking the repo), replace
-> `nvim-lua` with `<your_github_username>` in the commands below
+> If following the recommended step above (i.e., creating your own repo from
+> the template or fork), replace `nvim-lua` with `<your_github_username>`
+> in the commands below
 
 <details><summary> Linux and Mac </summary>
 
@@ -269,6 +278,19 @@ sudo pacman -S --noconfirm --needed gcc make git ripgrep fd tree-sitter-cli unzi
 ```
 </details>
 
+<details><summary>Alpine Install Steps</summary>
+
+> [!CAUTION]
+> Neovim works fine on Alpine, but some tooling appears incompatible with musl
+> (lua-language-server, etc., check `:Mason` or `:MasonLog`).
+> Quickfix Lua-LSP-Support: `:%s/lua_ls/emmylua_ls`
+
+```shell
+sudo apk add gcc make git fd ripgrep tree-sitter-cli unzip bash gzip curl musl-dev neovim-doc neovim
+```
+
+</details>
+
 ### Alternative neovim installation methods
 
 For some systems it is not unexpected that the [package manager installation
@@ -343,106 +365,3 @@ asdf reshim neovim
 </details>
 
 </details>
-
-## My Keybindings
-
-Leader key: `<Space>`. Local leader: `<Space>`.
-
-### General
-
-| Key | Mode | Action |
-| :-- | :--- | :----- |
-| `<Esc>` | n | Clear search highlight |
-| `<leader>q` | n | Open diagnostic quickfix list |
-| `<Esc><Esc>` | t | Exit terminal mode |
-| `<C-h>` / `<C-l>` / `<C-j>` / `<C-k>` | n | Move focus between windows |
-| `<leader>f` | n, v | Format buffer (conform.nvim) |
-| `<C-t>` | n, t | Toggle floating terminal (toggleterm.nvim) |
-
-### Search (Telescope)
-
-| Key | Action |
-| :-- | :----- |
-| `<leader>sh` | Search help tags |
-| `<leader>sk` | Search keymaps |
-| `<leader>sf` | Search files |
-| `<leader>ss` | Search Telescope builtins |
-| `<leader>sw` | Search current word (n, v) |
-| `<leader>sg` | Live grep |
-| `<leader>sd` | Search diagnostics |
-| `<leader>sr` | Resume last search |
-| `<leader>s.` | Search recent files |
-| `<leader>sc` | Search commands |
-| `<leader><leader>` | Find existing buffers |
-| `<leader>sn` | Search Neovim config files |
-| `<leader>sF` | Search in a chosen directory |
-| `<leader>sP` | Search plugin files |
-| `<leader>/` | Fuzzy search in current buffer |
-| `<leader>s/` | Live grep in open files |
-
-### LSP (buffer-local, on `LspAttach`)
-
-| Key | Action |
-| :-- | :----- |
-| `grr` | Goto references |
-| `gri` | Goto implementation |
-| `grd` | Goto definition |
-| `grt` | Goto type definition |
-| `gO` | Document symbols |
-| `gW` | Workspace symbols |
-| `<leader>th` | Toggle inlay hints |
-
-### Git (gitsigns.nvim, buffer-local)
-
-| Key | Mode | Action |
-| :-- | :--- | :----- |
-| `]c` / `[c` | n | Jump to next/previous git change |
-| `<leader>hs` | n, v | Stage hunk |
-| `<leader>hr` | n, v | Reset hunk |
-| `<leader>hS` | n | Stage buffer |
-| `<leader>hR` | n | Reset buffer |
-| `<leader>hp` | n | Preview hunk |
-| `<leader>hi` | n | Preview hunk inline |
-| `<leader>hb` | n | Blame line |
-| `<leader>hd` | n | Diff against index |
-| `<leader>hD` | n | Diff against last commit |
-| `<leader>hQ` | n | Hunk quickfix list (whole repo) |
-| `<leader>hq` | n | Hunk quickfix list (current file) |
-| `<leader>tb` | n | Toggle current line blame |
-| `<leader>tw` | n | Toggle word diff |
-| `ih` | o, x | Git hunk text object |
-
-### Neo-tree (file explorer)
-
-| Key | Action |
-| :-- | :----- |
-| `\` | Reveal current file in Neo-tree |
-| `<leader>e` | Toggle Neo-tree |
-| `\`, `<Esc>` | Close Neo-tree window (inside Neo-tree) |
-| `Y` | Copy absolute path of selected node |
-| `<C-y>` | Copy relative path of selected node |
-| `N` | Copy filename only of selected node |
-| `<leader>yy` | Pick path format (absolute/relative/filename) and copy |
-| `<leader>fs` | Find files scoped to the folder selected in Neo-tree |
-| `<leader>gs` | Live grep scoped to the folder selected in Neo-tree |
-
-### Debug (nvim-dap)
-
-| Key | Action |
-| :-- | :----- |
-| `<F5>` | Start/continue debug session (pick config) |
-| `<F10>` | Step into |
-| `<F2>` | Step over |
-| `<F3>` | Step out |
-| `<leader>b` | Toggle breakpoint |
-| `<leader>B` | Set conditional breakpoint |
-| `<leader>dl` | Re-run last debug session |
-| `<leader>cb` | Clear all breakpoints |
-| `<F7>` / `<leader>du` | Toggle DAP UI |
-
-### AI / Chess / Misc
-
-| Key | Action |
-| :-- | :----- |
-| `<leader>a` | Toggle Claude Code CLI (claude-code.nvim) |
-| `<leader>ch` | Find human game on Lichess (vim-lichess) |

@@ -5,8 +5,11 @@ vim.pack.add { 'https://github.com/mfussenegger/nvim-lint' }
 local lint = require 'lint'
 lint.linters_by_ft = {
   markdown = { 'markdownlint' }, -- Make sure to install `markdownlint` via mason / npm
-  python = { 'ruff' }, -- Fast Python linter (installed via mason)
 }
+
+-- pylint + pylint-odoo live in the shared Odoo dev venv (see debug.lua), not on
+-- $PATH, so point nvim-lint's bundled pylint linter at it directly.
+lint.linters.pylint.cmd = vim.fn.expand '~/Desktop/odoo-19.0/.venv/bin/pylint'
 
 -- To allow other plugins to add linters to require('lint').linters_by_ft,
 -- instead set linters_by_ft like this:
@@ -50,5 +53,21 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
     -- avoid superfluous noise, notably within the handy LSP pop-ups that
     -- describe the hovered symbol using Markdown.
     if vim.bo.modifiable then lint.try_lint() end
+  end,
+})
+
+-- pylint is much slower than the LSP-based linters (ruff/basedpyright), so only
+-- run it on save, and only in repos that actually opt into it with a
+-- `.pylintrc` (e.g. TM_BC6_ODOO_MADPG2601DPG, HMV-PACKAGE) — this avoids
+-- noise/slowdown when editing plain odoo-19.0 core or unrelated python files.
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = lint_augroup,
+  pattern = '*.py',
+  callback = function(event)
+    -- Run pylint with cwd set to the directory holding .pylintrc (not
+    -- Neovim's own cwd, which doesn't follow the opened file) so it actually
+    -- picks up the project's config instead of pylint's bare defaults.
+    local pylintrc = vim.fs.find('.pylintrc', { upward = true, path = vim.fs.dirname(event.file) })[1]
+    if pylintrc then lint.try_lint('pylint', { cwd = vim.fs.dirname(pylintrc) }) end
   end,
 })

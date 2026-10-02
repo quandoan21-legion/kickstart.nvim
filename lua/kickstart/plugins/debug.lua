@@ -1,10 +1,6 @@
 -- debug.lua
 --
--- Shows how to use the DAP plugin to debug your code.
---
--- Primarily focused on configuring the debugger for Go, but can
--- be extended to other languages as well. That's why it's called
--- kickstart.nvim and not kitchen-sink.nvim ;)
+-- DAP setup, configured for debugging Odoo 19 (Python) via debugpy.
 
 vim.pack.add {
   'https://github.com/mfussenegger/nvim-dap',
@@ -12,29 +8,20 @@ vim.pack.add {
   'https://github.com/nvim-neotest/nvim-nio',
   'https://github.com/mason-org/mason.nvim',
   'https://github.com/jay-babu/mason-nvim-dap.nvim',
-  'https://github.com/leoluz/nvim-dap-go',
   'https://github.com/mfussenegger/nvim-dap-python',
 }
 
 -- Basic debugging keymaps, feel free to change to your liking!
--- Also bound to <XF86AudioPrev>: this external keyboard's F7 key sends that
--- media keysym instead of a real F7 (confirmed via xev), since the F-row is
--- shared with media keys and doesn't need Fn held for this one.
-for _, key in ipairs { '<F7>', '<XF86AudioPrev>' } do
-  vim.keymap.set('n', key, function() require('dap').continue() end, { desc = 'Debug: Start/Continue' })
-end
-vim.keymap.set('n', '<F8>', function() require('dap').step_into() end, { desc = 'Debug: Step Into' })
+vim.keymap.set('n', '<F5>', function() require('dap').continue() end, { desc = 'Debug: Start/Continue' })
+vim.keymap.set('n', '<F1>', function() require('dap').step_into() end, { desc = 'Debug: Step Into' })
 vim.keymap.set('n', '<F2>', function() require('dap').step_over() end, { desc = 'Debug: Step Over' })
 vim.keymap.set('n', '<F3>', function() require('dap').step_out() end, { desc = 'Debug: Step Out' })
 vim.keymap.set('n', '<leader>b', function() require('dap').toggle_breakpoint() end, { desc = 'Debug: Toggle Breakpoint' })
 vim.keymap.set('n', '<leader>B', function() require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ') end, { desc = 'Debug: Set Breakpoint' })
-vim.keymap.set('n', '<leader>dl', function() require('dap').run_last() end, { desc = 'Debug: Re-run [L]ast session' })
-vim.keymap.set('n', '<leader>cb', function()
-  require('dap').clear_breakpoints()
-  vim.notify('Cleared all breakpoints', vim.log.levels.INFO)
-end, { desc = 'Debug: [C]lear all [B]reakpoints' })
 -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-vim.keymap.set('n', '<leader>du', function() require('dapui').toggle() end, { desc = 'Debug: Toggle [D]AP [U]I' })
+vim.keymap.set('n', '<F7>', function() require('dapui').toggle() end, { desc = 'Debug: See last session result.' })
+vim.keymap.set('n', '<leader>du', function() require('dapui').toggle() end, { desc = 'Debug: Toggle UI' })
+vim.keymap.set('n', '<leader>DL', function() require('dap').restart() end, { desc = 'Debug: Reload/Restart running session' })
 
 local dap = require 'dap'
 local dapui = require 'dapui'
@@ -52,8 +39,7 @@ require('mason-nvim-dap').setup {
   -- online, please don't ask me how to install them :)
   ensure_installed = {
     -- Update this to ensure that you have the debuggers for the langs you want
-    'delve', -- Go debugger
-    'python', -- installs debugpy for Python
+    'debugpy',
   },
 }
 
@@ -65,6 +51,24 @@ dapui.setup {
   --    Feel free to remove or use ones that you like more! :)
   --    Don't feel like these are good choices.
   icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+  layouts = {
+    {
+      elements = {
+        { id = 'breakpoints', size = 0.33 },
+        { id = 'stacks', size = 0.34 },
+        { id = 'repl', size = 0.33 },
+      },
+      size = 40,
+      position = 'left',
+    },
+    {
+      elements = {
+        'scopes',
+      },
+      size = 10,
+      position = 'bottom',
+    },
+  },
   ---@diagnostic disable-next-line: missing-fields
   controls = {
     icons = {
@@ -82,121 +86,133 @@ dapui.setup {
 }
 
 -- Change breakpoint icons
--- vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
--- vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
--- local breakpoint_icons = vim.g.have_nerd_font
---     and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
---   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
--- for type, icon in pairs(breakpoint_icons) do
---   local tp = 'Dap' .. type
---   local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
---   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
--- end
+vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#ff3c3c', bold = true })
+vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffd633', bold = true })
+-- Highlight for the line the debugger is currently stopped on.
+vim.api.nvim_set_hl(0, 'DapStoppedLine', { bg = '#3d3415' })
+local breakpoint_icons = vim.g.have_nerd_font
+    and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+  or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+for type, icon in pairs(breakpoint_icons) do
+  local tp = 'Dap' .. type
+  local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
+  vim.fn.sign_define(tp, {
+    text = icon,
+    texthl = hl,
+    numhl = hl,
+    linehl = (type == 'Stopped') and 'DapStoppedLine' or nil,
+  })
+end
 
 dap.listeners.after.event_initialized['dapui_config'] = dapui.open
 dap.listeners.before.event_terminated['dapui_config'] = dapui.close
 dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
--- Install golang specific config
-require('dap-go').setup {
-  delve = {
-    -- On Windows delve must be run attached or it crashes.
-    -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-    detached = vim.fn.has 'win32' == 0,
-  },
+-- Python / Odoo 19 debugging config
+--
+-- odoo-19.0/.venv already has psycopg2 + debugpy installed, and
+-- odoo-19.0/odoo.conf points at the local Postgres role "quandoan".
+local odoo_dir = vim.fn.expand '~/Desktop/odoo-19.0'
+local odoo_python = odoo_dir .. '/.venv/bin/python'
+
+require('dap-python').setup(odoo_python)
+
+dap.configurations.python = dap.configurations.python or {}
+table.insert(dap.configurations.python, {
+  type = 'python',
+  request = 'launch',
+  name = 'Odoo 19 (odoo-bin)',
+  program = odoo_dir .. '/odoo-bin',
+  pythonPath = function() return odoo_python end,
+  cwd = odoo_dir,
+  console = 'integratedTerminal',
+  args = { '-c', odoo_dir .. '/odoo.conf', '--dev=all' },
+})
+
+-- Python / HMV-PACKAGE debugging config
+--
+-- HMV-PACKAGE (gitlab.arrowhitech.co:BC6/HMV-PACKAGE) is a client addons repo, not a
+-- full Odoo checkout: it has no odoo-bin of its own, so we run it against the local
+-- odoo-19.0 core, with its bundled enterprise/community/a1_packages/project_custom
+-- addons layered on via addons_path. The local conf lives alongside odoo-19.0's own
+-- odoo.conf (not inside HMV-PACKAGE) so both configs share one place.
+local hmv_dir = vim.fn.expand '~/Desktop/HMV-PACKAGE'
+local hmv_conf = odoo_dir .. '/odoo.hmv.local.conf'
+
+-- Modules passed to `-u`. Stays fixed across runs until you explicitly change it
+-- with <leader>Dm — debugging doesn't re-prompt on every launch.
+local hmv_modules = 'hmv_employee_resignation,hmv_employee_resignation_workflow'
+
+-- Every addons dir on the HMV-PACKAGE odoo.conf's addons_path, so the picker only
+-- offers modules that `-u` could actually resolve.
+local hmv_addons_paths = {
+  odoo_dir .. '/addons',
+  hmv_dir .. '/addons/enterprise',
+  hmv_dir .. '/addons/community',
+  hmv_dir .. '/addons/a1_packages',
+  hmv_dir .. '/addons/project_custom',
 }
 
--- Python DAP: uses debugpy installed by mason
-local debugpy_python = vim.fn.stdpath 'data' .. '/mason/packages/debugpy/venv/bin/python'
-require('dap-python').setup(debugpy_python)
+local function list_hmv_modules()
+  local modules = {}
+  for _, path in ipairs(hmv_addons_paths) do
+    local ok, entries = pcall(vim.fs.dir, path)
+    if ok then
+      for name, ftype in entries do
+        if ftype == 'directory' and vim.uv.fs_stat(path .. '/' .. name .. '/__manifest__.py') then table.insert(modules, name) end
+      end
+    end
+  end
+  table.sort(modules)
+  return modules
+end
 
--- Odoo-specific Python debug configurations
-local dap_python_configs = require('dap').configurations.python or {}
+local function pick_hmv_modules()
+  local pickers = require 'telescope.pickers'
+  local finders = require 'telescope.finders'
+  local telescope_conf = require('telescope.config').values
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
 
-table.insert(dap_python_configs, {
+  pickers
+    .new({}, {
+      prompt_title = 'HMV-PACKAGE modules to update (-u)  <Tab> select  <CR> confirm',
+      finder = finders.new_table { results = list_hmv_modules() },
+      sorter = telescope_conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          local picker = action_state.get_current_picker(prompt_bufnr)
+          local multi = picker:get_multi_selection()
+          local chosen = {}
+          if #multi > 0 then
+            for _, entry in ipairs(multi) do
+              table.insert(chosen, entry.value)
+            end
+          else
+            local entry = action_state.get_selected_entry()
+            if entry then table.insert(chosen, entry.value) end
+          end
+          actions.close(prompt_bufnr)
+          if #chosen == 0 then return end
+          table.sort(chosen)
+          hmv_modules = table.concat(chosen, ',')
+          vim.notify('HMV-PACKAGE modules to update: ' .. hmv_modules)
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
+vim.keymap.set('n', '<leader>Dm', pick_hmv_modules, { desc = 'Debug: Pick HMV-PACKAGE modules (-u)' })
+
+table.insert(dap.configurations.python, {
   type = 'python',
   request = 'launch',
-  name = 'Odoo 18 base',
-  program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-  pythonPath = '/usr/local/bin/python3.12',
-  args = { '-c', 'debian/odoo-base.conf', '-d', 'base-1', '--xmlrpc-port', '9999' },
-  justMyCode = false,
-  env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0' },
+  name = 'HMV-PACKAGE (odoo-bin)',
+  program = odoo_dir .. '/odoo-bin',
+  pythonPath = function() return odoo_python end,
+  cwd = hmv_dir,
+  console = 'integratedTerminal',
+  args = function() return { '-c', hmv_conf, '-u', hmv_modules, '--dev=all' } end,
 })
-
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'Odoo 19 (Desktop)',
-  program = '/home/quandoan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/home/quandoan/Desktop/odoo-19.0/venv/bin/python',
-  cwd = '/home/quandoan/Desktop/odoo-19.0',
-  args = {
-    '--addons-path=/home/quandoan/Desktop/odoo-19.0/addons',
-    '--db_host=localhost',
-    '--db_port=5432',
-    '--db_user=odoo',
-    '--db_password=odoo',
-    '-d', 'odoo19',
-    '--http-port=8069',
-  },
-  justMyCode = false,
-  env = { PYTHONUNBUFFERED = '1' },
-})
-
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'Odoo 18 Tayoong',
-  program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-  pythonPath = '/usr/local/bin/python3.12',
-  args = { '-c', 'debian/odoo-tayoong.conf', '-u', 'a1_einvoice_to_gov', '--xmlrpc-port', '8069' },
-  justMyCode = false,
-  env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0' },
-})
-
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'Odoo 18 E-invoice',
-  program = '/Users/quandoan/Desktop/odoo-18.0/odoo-bin',
-  pythonPath = '/usr/local/bin/python3.12',
-  args = {
-    '-c', 'debian/odoo-e-invoice.conf',
-    '-u', 'a1_einvoice_to_gov,tayoong_issue_consolidate_invoice,issue_consolidate_invoice',
-    '--xmlrpc-port', '8099',
-  },
-  justMyCode = false,
-  env = { PYTHONPATH = '/Users/quandoan/Desktop/odoo-18.0' },
-})
-
--- HMV-PACKAGE has no engine of its own (per its README, the only documented
--- run path is Docker/build.sh) -- it's an addons-only repo, so local
--- debugging reuses the odoo-19.0 checkout as the engine and just widens
--- addons-path to include HMV-PACKAGE's addon trees.
-table.insert(dap_python_configs, {
-  type = 'python',
-  request = 'launch',
-  name = 'HMV-PACKAGE (Desktop)',
-  program = '/home/quandoan/Desktop/odoo-19.0/odoo-bin',
-  pythonPath = '/home/quandoan/Desktop/odoo-19.0/venv/bin/python',
-  cwd = '/home/quandoan/Desktop/HMV-PACKAGE',
-  args = {
-    '--addons-path=/home/quandoan/Desktop/odoo-19.0/addons,'
-      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/enterprise,'
-      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/community,'
-      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/a1_packages,'
-      .. '/home/quandoan/Desktop/HMV-PACKAGE/addons/project_custom',
-    '--db_host=localhost',
-    '--db_port=5432',
-    '--db_user=odoo',
-    '--db_password=odoo',
-    '-d', 'hmv-package',
-    '-u', 'hmv_sale_vehicle_planning',
-    '--http-port=8069',
-  },
-  justMyCode = false,
-  env = { PYTHONUNBUFFERED = '1' },
-})
-
-require('dap').configurations.python = dap_python_configs
